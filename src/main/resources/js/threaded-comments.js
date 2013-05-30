@@ -41,7 +41,7 @@ function AddCommentButtons() {
 }
 
 AJS.$('document').ready(function () {
-    AddCommentButtons();
+    //AddCommentButtons();
     JIRA.ViewIssueTabs.onTabReady(function(){
         AddCommentButtons();
     });
