@@ -14,21 +14,30 @@ function AddCommentButtons() {
         console.log("commentUser - " + commentUser);
         console.log("commentId - " + commentId);
 
-        if(iscommentallowed) {
+        if (iscommentallowed) {
             var commentBlock = AJS.$(this).children()[0];
             AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
             AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
-                '<ul class="ops"><li><a href="#" data="'+commentId+'" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
+                '<ul class="ops"><li><a href="#" data="' + commentId + '" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
                 '</div>'));
         }
     });
-    AJS.$('.commentreply').click(function(){
+    AJS.$('.commentreply').click(function () {
         event.preventDefault();
         AJS.$(this).next().toggle();
     });
-    AJS.$('.replycommentbutton').click(function(){
-        AJS.$.ajax('')
-        AJS.$(this).data
-
+    AJS.$('.replycommentbutton').click(function () {
+        var newComment = AJS.$(this).previousSibling().val();
+        var encoded = $('<div/>').text(newComment).html();
+        var data = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
+        AJS.$.ajax({
+            url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
+            data: data1,
+            type: "POST",
+            contentType: "application/json",
+            success: function (json) {
+                console.log("New comment added :");
+            }
+        });
     });
 }
