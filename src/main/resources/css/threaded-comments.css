@@ -1,0 +1,12 @@
+.commentreply {
+    float: right;
+    margin-right: 15px;
+}
+
+.commentreplyarea {
+    display: none;
+    padding-right: 15px;
+}
+.textcommentreply {
+    height: 45px;
+}
