@@ -6,8 +6,8 @@
     <artifactId>threaded-comments</artifactId>
     <version>1.0-SNAPSHOT</version>
     <organization>
-        <name>Example Company</name>
-        <url>http://www.example.com/</url>
+        <name>Atlassian Pty Ltd.</name>
+        <url>http://www.atlassian.com/</url>
     </organization>
     <name>threaded-comments</name>
     <description>This is the com.atlassian.jira.threadedcomments:threaded-comments plugin for Atlassian JIRA.</description>
@@ -99,6 +99,18 @@
             <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.activeobjects</groupId>
+            <artifactId>activeobjects-plugin</artifactId>
+            <version>${ao.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -132,9 +144,10 @@
         </plugins>
     </build>
     <properties>
-        <jira.version>5.2.11</jira.version>
+        <jira.version>6.0</jira.version>
         <amps.version>4.2.0</amps.version>
         <plugin.testrunner.version>1.1.1</plugin.testrunner.version>
+        <ao.version>0.19.7</ao.version>
         <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
         <testkit.version>5.2.26</testkit.version>
     </properties>

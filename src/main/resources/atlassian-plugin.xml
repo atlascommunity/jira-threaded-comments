@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
-  <plugin-info>
-    <description>${project.description}</description>
-    <version>${project.version}</version>
-    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-    <param name="plugin-icon">images/pluginIcon.png</param>
-    <param name="plugin-logo">images/pluginLogo.png</param>
-  </plugin-info>
-  <!-- add our i18n resource -->
-  <resource type="i18n" name="i18n" location="threaded-comments"/>
-  <!-- add our web resources -->
-  <web-resource key="threaded-comments-resources" name="threaded-comments Web Resources">
-    <dependency>com.atlassian.auiplugin:ajs</dependency>
-    <resource type="download" name="threaded-comments.css" location="/css/threaded-comments.css"/>
-    <resource type="download" name="threaded-comments.js" location="/js/threaded-comments.js"/>
-    <resource type="download" name="images/" location="/images"/>
-    <context>threaded-comments</context>
-  </web-resource>
-  <!-- import from the product container -->
-  <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
-  <rest name="Handle Comments" i18n-name-key="handle-comments.name" key="handle-comments" path="/handlecomments" version="1.0">
-    <description key="handle-comments.description">The Handle Comments Plugin</description>
-  </rest>
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+    </plugin-info>
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="threaded-comments"/>
+    <!-- add our web resources -->
+    <web-resource key="threaded-comments-resources" name="threaded-comments Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="threaded-comments.css" location="/css/threaded-comments.css"/>
+        <resource type="download" name="threaded-comments.js" location="/js/threaded-comments.js"/>
+        <resource type="download" name="images/" location="/images"/>
+        <context>threaded-comments</context>
+    </web-resource>
+    <!-- import from the product container -->
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+    <component-import key="ao" name="Active Objects service"
+                      interface="com.atlassian.activeobjects.external.ActiveObjects">
+        <description>Component to access Active Objects functionality from the plugin</description>
+    </component-import>
+    <rest name="Handle Comments" i18n-name-key="handle-comments.name" key="handle-comments" path="/handlecomments"
+          version="1.0">
+        <description key="handle-comments.description">The Handle Comments Plugin</description>
+    </rest>
+    <ao key="ao-module">
+        <description>The module configuring the Active Objects service used by this plugin</description>
+        <entity>com.atlassian.jira.threadedcomments.CommentInfo</entity>
+    </ao>
 </atlassian-plugin>
