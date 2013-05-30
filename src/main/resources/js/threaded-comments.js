@@ -5,11 +5,31 @@ function AddCommentButtons() {
 
     ///console.log("loggedInUser - " + loggedInUser);
     console.log("AddCommentButtons called - " + issueID);
-
+    var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/commentdata?issueid=" + issueID, function(data){
-        for(var comment in data) {
+        $.each(data, function(){
+            console.log(this.commentid);
+            parents[this.commentid] = this.parentcommentid;
+        });
+        AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+            var commentId = AJS.$(this).attr('id').split('-')[1];
 
-        }
+            var parent = parents[commentId];
+            console.log(commentId);
+            if( parent )
+            {
+                var parentId = '#comment-' + parent;
+                if(AJS.$(parentId).length != 0) {
+                    console.log("found parent in dom");
+                    AJS.$(this).addClass('movedcomment');
+                    AJS.$(this).appendTo(parentId);
+                }
+            }
+            else
+            {
+                console.log("no parent found for " + commentId);
+            }
+        });
     });
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
         var commentWholeId = AJS.$(this).attr('id');

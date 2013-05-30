@@ -21,3 +21,6 @@ a.aui-button.replycommentcancel {
 .hiddenthrobber {
     display: none;
 }
+div.movedcomment {
+    padding: 10px 0px 10px 15px;
+}
