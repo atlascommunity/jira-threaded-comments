@@ -14,10 +14,6 @@
     width: 100%;
 }
 
-.replycommentbutton {
-
-}
-
-.replycommentcancelbutton {
-
+a.aui-button.replycommentcancel {
+    margin-left: 10px;
 }

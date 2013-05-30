@@ -15,7 +15,8 @@ function AddCommentButtons() {
         if (AJS.$(commentBlock).find('.commentreply').length == 0) {
             AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
             AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
-                '<ul class="ops"><li><a href="#" data="' + commentId + '" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
+                '<ul class="ops"><li><a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add Reply</a></li><li><a href="#" data="' +
+                commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li></ul>' +
                 '</div>'));
         }
     });
@@ -28,23 +29,27 @@ function AddCommentButtons() {
         var encoded = $('<div/>').text(newComment).html();
         var data = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
         AJS.$.ajax({
-            url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
-            data: data1,
-            type: "POST",
-            contentType: "application/json",
-            success: function (json) {
+            url:AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
+            data:data1,
+            type:"POST",
+            contentType:"application/json",
+            success:function (json) {
                 console.log("New comment added :");
             }
         });
     });
+    AJS.$('.replycommentcancel').click(function () {
+        event.preventDefault();
+        AJS.$(this).parent().parent().parent().toggle();
+    })
 }
 
 AJS.$('document').ready(function () {
     AddCommentButtons();
-    JIRA.ViewIssueTabs.onTabReady(function(){
+    JIRA.ViewIssueTabs.onTabReady(function () {
         AddCommentButtons();
     });
-    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function(e, context, reason) {
+    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e, context, reason) {
         AddCommentButtons();
     });
 });
