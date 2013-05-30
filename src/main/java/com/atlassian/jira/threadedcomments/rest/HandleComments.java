@@ -54,14 +54,14 @@ public class HandleComments {
         }
         final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
-        final ArrayList<CommentInfo> commentData = new ArrayList<CommentInfo>();
+        final ArrayList<CommentModel> commentData = new ArrayList<CommentModel>();
         if (null != issueObject && permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
                     CommentInfo[] commentInfos = ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
                     for(CommentInfo c : commentInfos) {
-                        commentData.add(c);
+                        commentData.add(new CommentModel("",c.getParentCommentId(),c.getIssueId()));
                     }
                     return null;
                 }
@@ -70,7 +70,7 @@ public class HandleComments {
         }
         else
         {
-            log.warn("Get votes request ignored");
+            log.warn("Get comment request ignored");
         }
         return Response.ok(commentData).build();
     }
