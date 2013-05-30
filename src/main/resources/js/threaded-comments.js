@@ -24,8 +24,10 @@ function AddCommentButtons() {
         AJS.$(this).next().toggle();
     });
     AJS.$('.replycommentbutton').click(function () {
-        var newComment = AJS.$(this).previousSibling().val();
-        var encoded = $('<div/>').text(newComment).html();
+        var newComment = AJS.$(this).parent.child("textarea").val();
+        console.log("new comment " + encoded);
+        var encoded = AJS.$('<div/>').text(newComment).html();
+        console.log("new comment " + encoded);
         var data = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
         AJS.$.ajax({
             url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
