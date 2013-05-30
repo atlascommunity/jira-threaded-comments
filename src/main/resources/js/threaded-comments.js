@@ -8,29 +8,31 @@ function AddCommentButtons() {
     var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/commentdata?issueid=" + issueID, function(data){
         $.each(data, function(){
-            console.log(this.commentid);
+            //console.log(this.commentid);
             parents[this.commentid] = this.parentcommentid;
         });
         AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
             var commentId = AJS.$(this).attr('id').split('-')[1];
 
             var parent = parents[commentId];
-            console.log(commentId);
+            //console.log(commentId);
             if( parent )
             {
                 var parentId = '#comment-' + parent;
                 if(AJS.$(parentId).length != 0) {
-                    console.log("found parent in dom");
+                    //console.log("found parent in dom");
                     AJS.$(this).addClass('movedcomment');
                     AJS.$(this).appendTo(parentId);
                 }
             }
             else
             {
-                console.log("no parent found for " + commentId);
+                //console.log("no parent found for " + commentId);
             }
         });
     });
+
+
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
         var commentWholeId = AJS.$(this).attr('id');
         var commentId = AJS.$(this).attr('id').split('-')[1];
@@ -40,13 +42,16 @@ function AddCommentButtons() {
             console.log("Adding Reply block and handler for commentId - " + commentId);
             AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
             AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
-                '<ul class="ops"><li><a data="' + commentId + '" class="aui-button replycommentbutton">Add Reply</a></li><li><a href="#" data="' +
+                '<ul class="ops"><li><a data="' + commentId + '" class="aui-button replycommentbutton">Add</a></li><li><a href="#" data="' +
                 commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li><span class="icon throbber loading hiddenthrobber"></span></ul>' +
-                '</div>'));
+                '</div><br/>'));
 
             AJS.$(this).find('.commentreply').click(function () {
                 event.preventDefault();
+                AJS.$('.commentreplyarea').hide();
+                AJS.$('.commentreply').show();
                 AJS.$(this).next().toggle();
+                AJS.$(this).hide();
             });
             AJS.$(this).find('.replycommentbutton').click(function () {
                 var newComment = AJS.$(this).parent().parent().parent().children("textarea").val();
@@ -56,12 +61,15 @@ function AddCommentButtons() {
                 }
                 AJS.$(this).find('.hiddenthrobber').show();
                 var encoded = AJS.$('<div/>').text(newComment).html();
-                //console.log("new comment " + encoded);
-                var data1 = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
-                console.log("new data " + data1);
+                var postData = {};
+                postData.commentbody = newComment;
+                postData.parentcommentid = AJS.$(this).attr('data');
+                postData.issueid = issueID;
+
+                //console.log("new data " + postData);
                 AJS.$.ajax({
                     url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
-                    data: data1,
+                    data: JSON.stringify(postData),
                     type: "POST",
                     contentType: "application/json",
                     success: function (data) {
@@ -84,6 +92,8 @@ function AddCommentButtons() {
             AJS.$(this).find('.replycommentcancel').click(function () {
                 event.preventDefault();
                 AJS.$(this).parent().parent().parent().toggle();
+                //AJS.$(this).closest('.commentreplyarea').show();
+                AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
             });
         }
     });
