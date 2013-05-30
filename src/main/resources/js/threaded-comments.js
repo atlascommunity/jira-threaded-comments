@@ -31,7 +31,41 @@ function AddCommentButtons() {
             }
         });
     });
+/*    var securityInfo = AJS.$('<a href="#visibility" aria-owns="visibility" aria-haspopup="true" class="aui-button aui-dropdown2-trigger aui-style-default">Visibility</a></p> \
+        <div id="visibility" class="aui-dropdown2 aui-style-default">                                                                                      \
+            <div class="aui-dropdown2-section">                                                                                                                \
+                <strong>Groups</strong>                                                                                                                        \
+                <ul>                                                                                                                                           \
+                                                                                                                                                               \
+                </ul>                                                                                                                                          \
+            </div>                                                                                                                                             \
+            <div class="aui-dropdown2-section">                                                                                                                \
+                <strong>Project Roles</strong>                                                                                                                     \
+                <ul>                                                                                                                                               \
+                </ul>                                                                                                                                                  \
+            </div>                                                                                                                                                 \
+        </div>');*/
 
+
+/*
+    AJS.$.getJSON(AJS.contextPath() + '/rest/api/latest/groupuserpicker?query=' + AJS.params.loggedInUser, function(data){
+        //console.log(data.groups.groups);
+        AJS.$.each(data.groups.groups, function(key, value){
+            securityInfo.find('.aui-dropdown2-section:first').find('ul').append('<li><a href="#foo">' + value.html + '</a></li>');
+            console.log(value.html);
+            console.log(securityInfo);
+        });
+    });
+
+    AJS.$.getJSON(AJS.contextPath() + '/rest/api/latest/project/' + 'DEMO' + '/role', function(data){
+        //console.log(data.groups.groups);
+        AJS.$.each(data, function(key, value){
+            securityInfo.find('.aui-dropdown2-section:last').find('ul').append('<li><a href="#">' + value + '</a></li>');
+            console.log(value.html);
+            console.log(securityInfo);
+        });
+    });
+*/
 
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
         var commentWholeId = AJS.$(this).attr('id');
@@ -45,6 +79,7 @@ function AddCommentButtons() {
                 '<ul class="ops"><li><a data="' + commentId + '" class="aui-button replycommentbutton">Add</a></li><li><a href="#" data="' +
                 commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li><span class="icon throbber loading hiddenthrobber"></span></ul>' +
                 '</div><br/>'));
+            //AJS.$(commentBlock).append(securityInfo.clone(true));
 
             AJS.$(this).find('.commentreply').click(function () {
                 event.preventDefault();
@@ -73,21 +108,22 @@ function AddCommentButtons() {
                     type: "POST",
                     contentType: "application/json",
                     success: function (data) {
-                        console.log("New comment added :");
+                        console.log("New comment added :" + data);
                         JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                             complete:function () {
-                                AJS.$("#" + commentWholeId).scrollIntoView({marginBottom: 200,marginTop: 200});
+                                AJS.$("#comment-" + data.commentid).scrollIntoView({marginBottom: 200,marginTop: 200});
+                                AJS.$("#comment-" + data.commentid).addClass('focused');
                             }
                         }]);
                         AJS.$(this).find('.hiddenthrobber').hide();
                     }
                 });
-                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
-                    complete:function () {
-                        AJS.$("#" + commentWholeId).scrollIntoView({marginBottom: 200,marginTop: 200});
-                    }
-                }]);
-                AJS.$(this).find('.hiddenthrobber').hide();
+//                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
+//                    complete:function () {
+//                        AJS.$("#" + commentWholeId).scrollIntoView({marginBottom: 200,marginTop: 200});
+//                    }
+//                }]);
+//                AJS.$(this).find('.hiddenthrobber').hide();
             });
             AJS.$(this).find('.replycommentcancel').click(function () {
                 event.preventDefault();
