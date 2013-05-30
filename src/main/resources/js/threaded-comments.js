@@ -1,6 +1,6 @@
 function AddCommentButtons() {
     var loggedInUser = AJS.$('input[title="loggedInUser"]').val();
-    var issueID = AJS.$('input[name="id"]').val();
+    var issueID = JIRA.Issue.getIssueId();
     var iscommentallowed = AJS.$('#issue-comment-add-submit');
 
     console.log("loggedInUser - " + loggedInUser);
@@ -15,7 +15,7 @@ function AddCommentButtons() {
         if (AJS.$(commentBlock).find('.commentreply').length == 0) {
             AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
             AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
-                '<ul class="ops"><li><a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add Reply</a></li><li><a href="#" data="' +
+                '<ul class="ops"><li><a data="' + commentId + '" class="aui-button replycommentbutton">Add Reply</a></li><li><a href="#" data="' +
                 commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li></ul>' +
                 '</div>'));
         }
@@ -30,7 +30,11 @@ function AddCommentButtons() {
             console.log("empty input");
             return;
         }
-        console.log("new comment " + encoded);
+        //AJS.$(this).parent().parent().parent().children("textarea").attr('readonly','readonly');
+        //AJS.$(this).parent().parent().parent().children("textarea").val('');
+        //AJS.$(this).parent().parent().parent().children("textarea").addClass('disabledtext');
+
+        console.log("new comment " + newComment);
         var encoded = AJS.$('<div/>').text(newComment).html();
         console.log("new comment " + encoded);
         var data1 = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
@@ -40,8 +44,9 @@ function AddCommentButtons() {
             data:data1,
             type:"POST",
             contentType:"application/json",
-            success:function (json) {
+            success:function (data) {
                 console.log("New comment added :");
+                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
             }
         });
     });
