@@ -1,19 +1,26 @@
 package com.atlassian.jira.threadedcomments.rest;
 
+import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.Permissions;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import com.atlassian.activeobjects.external.ActiveObjects;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -34,6 +41,41 @@ public class HandleComments {
         this.issueManager = issueManager;
         this.permissionManager = permissionManager;
         this.commentManager = commentManager;
+    }
+
+    @GET
+    @AnonymousAllowed
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("commentdata")
+    public Response commentData(@QueryParam("issueid") final Long issueid)
+    {
+        if (null == issueid) {
+            return Response.notModified("Issue Id missing").build();
+        }
+        else {
+            log.debug("Issueid - " +  issueid);
+        }
+        final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        final MutableIssue issueObject = issueManager.getIssueObject(issueid);
+        final ArrayList<CommentInfo> commentData = new ArrayList<CommentInfo>();
+        if (null != issueObject && permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser)) {
+            ao.executeInTransaction(new TransactionCallback<Void>() {
+                @Override
+                public Void doInTransaction() {
+                    CommentInfo[] commentInfos = ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
+                    for(CommentInfo c : commentInfos) {
+                        commentData.add(c);
+                    }
+                    return null;
+                }
+            });
+
+        }
+        else
+        {
+            log.warn("Get votes request ignored");
+        }
+        return Response.ok(commentData).build();
     }
 
     @GET
