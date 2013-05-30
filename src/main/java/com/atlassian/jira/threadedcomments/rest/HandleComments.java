@@ -62,7 +62,7 @@ public class HandleComments {
                 public Void doInTransaction() {
                     CommentInfo[] commentInfos = ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
                     for(CommentInfo c : commentInfos) {
-                        commentData.put(c.getID(), new CommentModel("",c.getParentCommentId(),c.getIssueId()));
+                        commentData.put(c.getID(), new CommentModel("",c.getParentCommentId(),c.getIssueId(), c.getCommentId()));
                     }
                     return null;
                 }
@@ -108,6 +108,8 @@ public class HandleComments {
                 return null;
             }
         });
-        return Response.ok("Comment Added").build();
+        comment.setCommentId(newComment.getId());
+
+        return Response.ok(comment).build();
     }
 }

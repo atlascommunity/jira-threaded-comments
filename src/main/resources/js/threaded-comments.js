@@ -6,8 +6,13 @@ function AddCommentButtons() {
     ///console.log("loggedInUser - " + loggedInUser);
     console.log("AddCommentButtons called - " + issueID);
 
-    AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/commentdata?issueid=" + issueID, function(data){
+        for(var comment in data) {
 
+        }
+    });
+    AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+        var commentWholeId = AJS.$(this).attr('id');
         var commentId = AJS.$(this).attr('id').split('-')[1];
 
         var commentBlock = AJS.$(this).children()[0];
@@ -43,7 +48,7 @@ function AddCommentButtons() {
                         console.log("New comment added :");
                         JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                             complete:function () {
-                                AJS.$("#" + commentId).scrollIntoView({marginBottom: 200,marginTop: 200});
+                                AJS.$("#" + commentWholeId).scrollIntoView({marginBottom: 200,marginTop: 200});
                             }
                         }]);
                         AJS.$(this).find('.hiddenthrobber').hide();
@@ -51,7 +56,7 @@ function AddCommentButtons() {
                 });
                 JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                     complete:function () {
-                        AJS.$("#" + commentId).scrollIntoView(true);
+                        AJS.$("#" + commentWholeId).scrollIntoView({marginBottom: 200,marginTop: 200});
                     }
                 }]);
                 AJS.$(this).find('.hiddenthrobber').hide();
