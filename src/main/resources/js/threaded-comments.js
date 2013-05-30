@@ -1,7 +1,7 @@
 function RearrangeComments() {
     var issueID = JIRA.Issue.getIssueId();
     var parents = {};
-    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/commentdata?issueid=" + issueID, function (data) {
+    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
         $.each(data, function () {
             //console.log(this.commentid);
             parents[this.commentid] = this.parentcommentid;
@@ -74,11 +74,15 @@ function AddCommentButtons() {
         AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
             var commentWholeId = AJS.$(this).attr('id');
             var commentId = AJS.$(this).attr('id').split('-')[1];
-
+            var commentUser = AJS.$(this).find('.action-details a').attr("rel");
             var commentBlock = AJS.$(this).children()[0];
-            if (AJS.$(commentBlock).find('.commentreply').length == 0) {
+            var iscommentallowed = AJS.$('#issue-comment-add-submit');
+
+            if (iscommentallowed && AJS.$(commentBlock).find('.commentreply').length == 0) {
                 console.log("Adding Reply block and handler for commentId - " + commentId);
+
                 AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
+
                 AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
                     '<textarea class="textcommentreply textarea long-field wiki-textfield mentionable" cols="60" rows="10" wrap="virtual" ' +
                     'data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" style="overflow-y: auto; height: 200px;"></textarea>' +
@@ -112,7 +116,7 @@ function AddCommentButtons() {
 
                     //console.log("new data " + postData);
                     AJS.$.ajax({
-                        url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
+                        url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/addcomment",
                         data: JSON.stringify(postData),
                         type: "POST",
                         contentType: "application/json",
@@ -134,11 +138,78 @@ function AddCommentButtons() {
                     //AJS.$(this).closest('.commentreplyarea').show();
                     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
                 });
+
+                AJS.$(this).find('.action-links').each(function () {
+                    //Add the buttons (only if the comment is from someone else)
+
+                    if (loggedInUser != commentUser) {
+                        AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
+                            '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
+                            '<a class="downvote" commentid=' + commentId + ' title="Down votes this comment">' +
+                            '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
+                    }
+                });
+
+                AJS.$(this).find('.upvote').click(function (event) {
+                    event.preventDefault();
+                    AJS.$.ajax({
+                        url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/upvote?commentid=" + AJS.$(this).attr('commentid') + '&issueid=' + issueID,
+                        success: function () {
+                            //console.log('Up voted');
+                            ShowCurrentVotes();
+                        }
+                    });
+                });
+
+                AJS.$(this).find('.downvote').click(function (event) {
+                    event.preventDefault();
+                    AJS.$.ajax({
+                        url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/downvote?commentid=" + AJS.$(this).attr('commentid') + '&issueid=' + issueID,
+                        success: function () {
+                            //console.log('Down voted');
+                            ShowCurrentVotes();
+                        }
+                    });
+                });
             }
         });
     });
-
 }
+
+function ShowCurrentVotes() {
+    var issueID = AJS.$('input[name="id"]').val();
+    var commentData = {};
+
+    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentsvotes?issueid=" + issueID, function (data) {
+            AJS.$.each(data, function () {
+                commentData['comment-' + this.commentid] = this;
+            });
+            AJS.$('.currentvotes').remove();
+
+            AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+                var commentId = AJS.$(this).attr('id').split('-')[1];
+                AJS.$(this).find('.action-links').each(function () {
+                    //Add the current votes
+                    var cmData = commentData["comment-" + commentId];
+
+                    if (cmData && cmData.downvotes) {
+                        var plu = cmData.downvotes > 1 ? 's':'';
+                        AJS.$(this).before(
+                            AJS.$('<div class="description currentvotes dislikes">' + cmData.downvotes + ' dislike' + plu + '</div>')
+                        );
+                    }
+                    if (cmData && cmData.upvotes) {
+                        var plu = cmData.upvotes > 1 ? 's':'';
+                        AJS.$(this).before(
+                            AJS.$('<div class="description currentvotes likes">' + cmData.upvotes + ' like' + plu + '</div>')
+                        );
+                    }
+                });
+            });
+        }
+    );
+}
+
 
 AJS.$('document').ready(function () {
     AddCommentButtons();

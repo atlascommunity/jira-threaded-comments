@@ -25,3 +25,15 @@ div.movedcomment {
     padding: 10px 0px 0px 15px;
     border-bottom: 0px;
 }
+.currentvotes {
+    float: right;
+    margin-left: 15px;
+    margin-right: 15px;
+    font-size: 11px;
+}
+.likes {
+    color: green;
+}
+.dislikes {
+    color: red;
+}
