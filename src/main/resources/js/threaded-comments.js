@@ -1,4 +1,3 @@
-
 function AddCommentButtons() {
     var loggedInUser = AJS.$('input[title="loggedInUser"]').val();
     var issueID = AJS.$('input[name="id"]').val();
@@ -13,10 +12,12 @@ function AddCommentButtons() {
         console.log("commentId - " + commentId);
 
         var commentBlock = AJS.$(this).children()[0];
-        AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
-        AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
-            '<ul class="ops"><li><a href="#" data="' + commentId + '" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
-            '</div>'));
+        if (AJS.$(commentBlock).find('.commentreply').length == 0) {
+            AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
+            AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
+                '<ul class="ops"><li><a href="#" data="' + commentId + '" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
+                '</div>'));
+        }
     });
     AJS.$('.commentreply').click(function () {
         event.preventDefault();
@@ -40,7 +41,10 @@ function AddCommentButtons() {
 
 AJS.$('document').ready(function () {
     AddCommentButtons();
-    //JIRA.ViewIssueTabs.onTabReady(function(){
-    //    AddCommentButtons();
-    //});
+    JIRA.ViewIssueTabs.onTabReady(function(){
+        AddCommentButtons();
+    });
+    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function(e, context, reason) {
+        AddCommentButtons();
+    });
 });
