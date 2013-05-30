@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,14 +54,14 @@ public class HandleComments {
         }
         final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
-        final ArrayList<CommentModel> commentData = new ArrayList<CommentModel>();
+        final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
         if (null != issueObject && permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
                     CommentInfo[] commentInfos = ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
                     for(CommentInfo c : commentInfos) {
-                        commentData.add(new CommentModel("",c.getParentCommentId(),c.getIssueId()));
+                        commentData.put(c.getID(), new CommentModel("",c.getParentCommentId(),c.getIssueId()));
                     }
                     return null;
                 }
@@ -72,7 +72,7 @@ public class HandleComments {
         {
             log.warn("Get comment request ignored");
         }
-        return Response.ok(commentData).build();
+        return Response.ok(commentData.values()).build();
     }
 
     @POST
