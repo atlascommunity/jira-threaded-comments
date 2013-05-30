@@ -43,12 +43,12 @@ function AddCommentButtons() {
             url:AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
             data:data1,
             type:"POST",
-            contentType:"application/json",
-            success:function (data) {
-                console.log("New comment added :");
-                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
-            }
+            contentType:"application/json"
+        }).done(function (data) {
+            console.log("New comment added :");
+            JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
         });
+        JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
     });
     AJS.$('.replycommentcancel').click(function () {
         event.preventDefault();
