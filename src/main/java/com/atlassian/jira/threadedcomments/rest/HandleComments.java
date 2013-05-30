@@ -11,6 +11,7 @@ import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.transaction.TransactionCallback;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -94,7 +95,7 @@ public class HandleComments {
 
         final Comment newComment = commentManager.create(issueManager.getIssueObject(comment.getIssueId()),
                 ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser().getName(),
-                comment.getCommentBody(), true);
+                StringEscapeUtils.unescapeHtml4(comment.getCommentBody()), true);
         log.debug(newComment.getId());
         ao.executeInTransaction(new TransactionCallback<Void>() {
             @Override
