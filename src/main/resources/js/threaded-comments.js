@@ -1,3 +1,4 @@
+
 function AddCommentButtons() {
     var loggedInUser = AJS.$('input[title="loggedInUser"]').val();
     var issueID = AJS.$('input[name="id"]').val();
@@ -38,3 +39,10 @@ function AddCommentButtons() {
         });
     });
 }
+
+AJS.$('document').ready(function () {
+    AddCommentButtons();
+    JIRA.ViewIssueTabs.onTabReady(function(){
+        AddCommentButtons();
+    });
+});
