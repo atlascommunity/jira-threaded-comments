@@ -24,11 +24,16 @@ function AddCommentButtons() {
         AJS.$(this).next().toggle();
     });
     AJS.$('.replycommentbutton').click(function () {
-        var newComment = AJS.$(this).parent.child("textarea").val();
+        var newComment = AJS.$(this).parent().parent().parent().children("textarea").val();
+        if(newComment.length == 0 ) {
+            console.log("empty input");
+            return;
+        }
         console.log("new comment " + encoded);
         var encoded = AJS.$('<div/>').text(newComment).html();
         console.log("new comment " + encoded);
-        var data = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
+        var data1 = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
+        console.log("new data " + data1);
         AJS.$.ajax({
             url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
             data: data1,
