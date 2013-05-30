@@ -7,6 +7,7 @@ function AddCommentButtons() {
     console.log("AddCommentButtons called - " + issueID);
 
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+
         var commentId = AJS.$(this).attr('id').split('-')[1];
 
         var commentBlock = AJS.$(this).children()[0];
@@ -28,25 +29,29 @@ function AddCommentButtons() {
                     console.log("empty input");
                     return;
                 }
-                //AJS.$(this).parent().parent().parent().children("textarea").attr('readonly','readonly');
-                //AJS.$(this).parent().parent().parent().children("textarea").val('');
-                //AJS.$(this).parent().parent().parent().children("textarea").addClass('disabledtext');
-
-                //console.log("new comment " + newComment);
                 var encoded = AJS.$('<div/>').text(newComment).html();
                 //console.log("new comment " + encoded);
                 var data1 = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
-                //console.log("new data " + data1);
+                console.log("new data " + data1);
                 AJS.$.ajax({
                     url: AJS.contextPath() + "/rest/handlecomments/latest/addcomment",
                     data: data1,
                     type: "POST",
-                    contentType: "application/json"
-                }).done(function (data) {
+                    contentType: "application/json",
+                    success: function (data) {
                         console.log("New comment added :");
-                        JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
-                    });
-                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
+                        JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
+                            complete:function () {
+                                AJS.$("#" + commentId).scrollIntoView({marginBottom: 200,marginTop: 200});
+                            }
+                        }]);
+                    }
+                });
+                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
+                    complete:function () {
+                        AJS.$("#" + commentId).scrollIntoView(true);
+                    }
+                }]);
             });
             AJS.$(this).find('.replycommentcancel').click(function () {
                 event.preventDefault();
@@ -61,7 +66,7 @@ AJS.$('document').ready(function () {
     JIRA.ViewIssueTabs.onTabReady(function () {
         AddCommentButtons();
     });
-    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e, context, reason) {
+    JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
         AddCommentButtons();
     });
 });
