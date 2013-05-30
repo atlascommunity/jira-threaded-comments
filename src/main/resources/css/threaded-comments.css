@@ -17,3 +17,7 @@
 a.aui-button.replycommentcancel {
     margin-left: 10px;
 }
+
+.hiddenthrobber {
+    display: none;
+}

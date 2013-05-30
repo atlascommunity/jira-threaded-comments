@@ -16,7 +16,7 @@ function AddCommentButtons() {
             AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
             AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
                 '<ul class="ops"><li><a data="' + commentId + '" class="aui-button replycommentbutton">Add Reply</a></li><li><a href="#" data="' +
-                commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li></ul>' +
+                commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li><span class="icon throbber loading hiddenthrobber"></span></ul>' +
                 '</div>'));
 
             AJS.$(this).find('.commentreply').click(function () {
@@ -29,6 +29,7 @@ function AddCommentButtons() {
                     console.log("empty input");
                     return;
                 }
+                AJS.$(this).find('.hiddenthrobber').show();
                 var encoded = AJS.$('<div/>').text(newComment).html();
                 //console.log("new comment " + encoded);
                 var data1 = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
@@ -45,6 +46,7 @@ function AddCommentButtons() {
                                 AJS.$("#" + commentId).scrollIntoView({marginBottom: 200,marginTop: 200});
                             }
                         }]);
+                        AJS.$(this).find('.hiddenthrobber').hide();
                     }
                 });
                 JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
@@ -52,6 +54,7 @@ function AddCommentButtons() {
                         AJS.$("#" + commentId).scrollIntoView(true);
                     }
                 }]);
+                AJS.$(this).find('.hiddenthrobber').hide();
             });
             AJS.$(this).find('.replycommentcancel').click(function () {
                 event.preventDefault();
