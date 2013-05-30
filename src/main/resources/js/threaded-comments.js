@@ -6,6 +6,11 @@ function AddCommentButtons() {
     ///console.log("loggedInUser - " + loggedInUser);
     console.log("AddCommentButtons called - " + issueID);
 
+    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/commentdata?issueid=" + issueID, function(data){
+        for(var comment in data) {
+
+        }
+    });
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
         var commentWholeId = AJS.$(this).attr('id');
         var commentId = AJS.$(this).attr('id').split('-')[1];

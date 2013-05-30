@@ -17,13 +17,26 @@ public class CommentModel {
     @XmlElement(name = "issueid")
     private Long issueId;
 
+    public Long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
+
+    @XmlElement(name = "commentid")
+    private Long commentId;
+
+
     public CommentModel(){
 
     }
-    public CommentModel(String commentBody, Long parentCommentId, Long issueId) {
+    public CommentModel(String commentBody, Long parentCommentId, Long issueId, Long commentId) {
         this.commentBody = commentBody;
         this.parentCommentId = parentCommentId;
         this.issueId = issueId;
+        this.commentId = commentId;
     }
 
     public String getCommentBody() {
