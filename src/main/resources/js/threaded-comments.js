@@ -11,24 +11,19 @@ function AddCommentButtons() {
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
         var commentId = AJS.$(this).attr('id').split('-')[1];
         console.log("commentId - " + commentId);
-        var idextra = "-" + commentId;
 
-        var replyButton = AJS.$('#addcommentmodule').clone(true,true);
-        replyButton.attr("id", replyButton.attr("id") + idextra);
-        replyButton.find('#footer-comment-button').removeClass("aui-button");
-        replyButton.find('#footer-comment-button').addClass("commentreply");
-        replyButton.find('#footer-comment-button').children("span:first").remove();
-        replyButton.find('#footer-comment-button').children("span:first").text("Reply");
-        AJS.$(this).append(replyButton);
-
+        var commentBlock = AJS.$(this).children()[0];
+        AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
+        AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea"><textarea class="textcommentreply"/>' +
+            '<ul class="ops"><li><a href="#" data="' + commentId + '" class="first last button replycommentbutton">Add Reply</a></li></ul>' +
+            '</div>'));
     });
     AJS.$('.commentreply').click(function () {
         event.preventDefault();
         AJS.$(this).next().toggle();
     });
     AJS.$('.replycommentbutton').click(function () {
-        AJS.$(this).attr('readonly','readonly');
-        var newComment = AJS.$(this).previous().val();
+        var newComment = AJS.$(this).previousSibling().val();
         var encoded = $('<div/>').text(newComment).html();
         var data = '{"commentbody":"' + encoded + '","parentcommentid":"' + AJS.$(this).attr('data') + '","issueid":' + issueID + '}';
         AJS.$.ajax({
@@ -38,7 +33,6 @@ function AddCommentButtons() {
             contentType: "application/json",
             success: function (json) {
                 console.log("New comment added :");
-                location.reload();
             }
         });
     });
@@ -46,7 +40,7 @@ function AddCommentButtons() {
 
 AJS.$('document').ready(function () {
     AddCommentButtons();
-    JIRA.ViewIssueTabs.onTabReady(function(){
-        AddCommentButtons();
-    });
+    //JIRA.ViewIssueTabs.onTabReady(function(){
+    //    AddCommentButtons();
+    //});
 });
