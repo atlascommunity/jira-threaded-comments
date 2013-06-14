@@ -94,7 +94,7 @@ function AddCommentButtons() {
                     '</div><br/>'));
                 //AJS.$(commentBlock).append(securityInfo.clone(true));
 
-                AJS.$(this).find('.commentreply').click(function () {
+                AJS.$(this).find('.commentreply').click(function (event) {
                     event.preventDefault();
                     AJS.$('.commentreplyarea').hide();
                     AJS.$('.commentreply').show();
@@ -132,7 +132,7 @@ function AddCommentButtons() {
                         }
                     });
                 });
-                AJS.$(this).find('.replycommentcancel').click(function () {
+                AJS.$(this).find('.replycommentcancel').click(function (event) {
                     event.preventDefault();
                     AJS.$(this).parent().parent().parent().toggle();
                     //AJS.$(this).closest('.commentreplyarea').show();

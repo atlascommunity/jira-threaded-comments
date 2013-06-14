@@ -1,9 +1,9 @@
-package it.com.atlassian.jira.threadedcomments.rest;
+package ut.com.atlassian.labs.jira.threadedcomments.rest;
 
 import org.junit.After;
 import org.junit.Before;
 
-public class HandleCommentsFuncTest {
+public class HandleCommentsTest {
 
     @Before
     public void setup() {

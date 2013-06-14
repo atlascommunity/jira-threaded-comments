@@ -1,4 +1,4 @@
-package com.atlassian.jira.threadedcomments.rest;
+package com.atlassian.labs.jira.threadedcomments.rest;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
