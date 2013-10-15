@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.jira.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <organization>
         <name>Atlassian Pty Ltd.</name>
         <url>http://www.atlassian.com/</url>
@@ -12,6 +12,11 @@
     <name>JIRA Threaded Comments</name>
     <description>This enables comment threading in JIRA issues.</description>
     <packaging>atlassian-plugin</packaging>
+    <scm>
+        <connection>scm:git:https://bitbucket.org/atlassianlabs/jira-threaded-comments.git</connection>
+        <developerConnection>scm:git:https://bitbucket.org/atlassianlabs/jira-threaded-comments.git</developerConnection>
+        <url>https://bitbucket.org/atlassianlabs/jira-threaded-comments</url>
+    </scm>
     <dependencies>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
