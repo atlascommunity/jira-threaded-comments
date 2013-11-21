@@ -2,7 +2,7 @@ function RearrangeComments() {
     var issueID = JIRA.Issue.getIssueId();
     var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
-        $.each(data, function () {
+        AJS.$.each(data, function () {
             //console.log(this.commentid);
             parents[this.commentid] = this.parentcommentid;
         });
@@ -32,42 +32,6 @@ function AddCommentButtons() {
     var issueKey = AJS.Meta.get('issue-key');
 
     console.log("AddCommentButtons called - " + issueID);
-
-    /*    var securityInfo = AJS.$('<a href="#visibility" aria-owns="visibility" aria-haspopup="true" class="aui-button aui-dropdown2-trigger aui-style-default">Visibility</a></p> \
-     <div id="visibility" class="aui-dropdown2 aui-style-default">                                                                                      \
-     <div class="aui-dropdown2-section">                                                                                                                \
-     <strong>Groups</strong>                                                                                                                        \
-     <ul>                                                                                                                                           \
-     \
-     </ul>                                                                                                                                          \
-     </div>                                                                                                                                             \
-     <div class="aui-dropdown2-section">                                                                                                                \
-     <strong>Project Roles</strong>                                                                                                                     \
-     <ul>                                                                                                                                               \
-     </ul>                                                                                                                                                  \
-     </div>                                                                                                                                                 \
-     </div>');*/
-
-
-    /*
-     AJS.$.getJSON(AJS.contextPath() + '/rest/api/latest/groupuserpicker?query=' + AJS.params.loggedInUser, function(data){
-     //console.log(data.groups.groups);
-     AJS.$.each(data.groups.groups, function(key, value){
-     securityInfo.find('.aui-dropdown2-section:first').find('ul').append('<li><a href="#foo">' + value.html + '</a></li>');
-     console.log(value.html);
-     console.log(securityInfo);
-     });
-     });
-
-     AJS.$.getJSON(AJS.contextPath() + '/rest/api/latest/project/' + 'DEMO' + '/role', function(data){
-     //console.log(data.groups.groups);
-     AJS.$.each(data, function(key, value){
-     securityInfo.find('.aui-dropdown2-section:last').find('ul').append('<li><a href="#">' + value + '</a></li>');
-     console.log(value.html);
-     console.log(securityInfo);
-     });
-     });
-     */
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
         var projectKey = data.fields.project.key;
