@@ -149,8 +149,8 @@
         </plugins>
     </build>
     <properties>
-        <jira.version>6.1.1</jira.version>
-        <amps.version>4.2.3</amps.version>
+        <jira.version>6.2.3</jira.version>
+        <amps.version>4.2.20</amps.version>
         <plugin.testrunner.version>1.1.1</plugin.testrunner.version>
         <ao.version>0.19.7</ao.version>
         <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
