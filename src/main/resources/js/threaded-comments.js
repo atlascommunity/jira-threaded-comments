@@ -1,5 +1,9 @@
 function RearrangeComments() {
     var issueID = JIRA.Issue.getIssueId();
+    //#4
+    if (!issueID || issueID === ""){
+        return;
+    }
     var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
         AJS.$.each(data, function () {
@@ -104,7 +108,7 @@ function AddCommentButtons() {
                     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
                 });
 
-                AJS.$(this).find('.action-links').each(function () {
+                AJS.$(commentBlock).find('.action-links').each(function () {
                     //Add the buttons (only if the comment is from someone else)
 
                     if (loggedInUser != commentUser) {
@@ -153,7 +157,7 @@ function ShowCurrentVotes() {
 
             AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
                 var commentId = AJS.$(this).attr('id').split('-')[1];
-                AJS.$(this).find('.action-links').each(function () {
+                AJS.$(commentBlock).find('.action-links').each(function () {
                     //Add the current votes
                     var cmData = commentData["comment-" + commentId];
 
