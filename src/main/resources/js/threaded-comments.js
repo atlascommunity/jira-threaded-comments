@@ -23,6 +23,7 @@ function RearrangeComments() {
                 //console.log("no parent found for " + commentId);
             }
         });
+        AJS.$('.issue-data-block.focused').scrollIntoView({marginBottom: 200,marginTop: 200});
     });
 }
 
