@@ -36,7 +36,7 @@ function AddCommentButtons() {
     var issueID = JIRA.Issue.getIssueId();
     var issueKey = AJS.Meta.get('issue-key');
 
-    console.log("AddCommentButtons called - " + issueID);
+    //console.log("AddCommentButtons called - " + issueID);
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
         var projectKey = data.fields.project.key;
@@ -48,7 +48,7 @@ function AddCommentButtons() {
             var iscommentallowed = AJS.$('#issue-comment-add-submit');
 
             if (iscommentallowed && AJS.$(commentBlock).find('.commentreply').length == 0) {
-                console.log("Adding Reply block and handler for commentId - " + commentId);
+                //console.log("Adding Reply block and handler for commentId - " + commentId);
 
                 AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
 
@@ -90,7 +90,7 @@ function AddCommentButtons() {
                         type: "POST",
                         contentType: "application/json",
                         success: function (data) {
-                            console.log("New comment added :" + data);
+                            //console.log("New comment added :" + data);
                             JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                                 complete: function () {
                                     AJS.$("#comment-" + data.commentid).scrollIntoView({marginBottom: 200, marginTop: 200});
@@ -110,7 +110,6 @@ function AddCommentButtons() {
 
                 AJS.$(commentBlock).find('.action-links').each(function () {
                     //Add the buttons (only if the comment is from someone else)
-
                     if (loggedInUser != commentUser) {
                         AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
                             '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
@@ -156,6 +155,7 @@ function ShowCurrentVotes() {
             AJS.$('.currentvotes').remove();
 
             AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
+                var commentBlock = AJS.$(this).children()[0];
                 var commentId = AJS.$(this).attr('id').split('-')[1];
                 AJS.$(commentBlock).find('.action-links').each(function () {
                     //Add the current votes
@@ -183,12 +183,15 @@ function ShowCurrentVotes() {
 AJS.$('document').ready(function () {
     AddCommentButtons();
     RearrangeComments();
+    ShowCurrentVotes();
     JIRA.ViewIssueTabs.onTabReady(function () {
         AddCommentButtons();
         RearrangeComments();
+        ShowCurrentVotes();
     });
     JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
         RearrangeComments();
         AddCommentButtons();
+        ShowCurrentVotes();
     });
 });

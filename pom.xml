@@ -13,9 +13,9 @@
     <description>This enables comment threading in JIRA issues.</description>
     <packaging>atlassian-plugin</packaging>
     <scm>
-        <connection>scm:git:https://bitbucket.org/atlassianlabs/jira-threaded-comments.git</connection>
-        <developerConnection>scm:git:https://bitbucket.org/atlassianlabs/jira-threaded-comments.git</developerConnection>
-        <url>https://bitbucket.org/atlassianlabs/jira-threaded-comments</url>
+        <connection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
+        <developerConnection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
+        <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
     </scm>
     <dependencies>
         <dependency>
