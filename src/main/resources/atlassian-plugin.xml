@@ -30,7 +30,7 @@
     </rest>
     <ao key="ao-module">
         <description>The module configuring the Active Objects service used by this plugin</description>
-        <entity>com.atlassian.labs.jira.threadedcomments.rest.VoteInfo</entity>
-        <entity>com.atlassian.labs.jira.threadedcomments.rest.CommentInfo</entity>
+        <entity>info.renjithv.jira.addons.threadedcomments.rest.VoteInfo</entity>
+        <entity>info.renjithv.jira.addons.threadedcomments.rest.CommentInfo</entity>
     </ao>
 </atlassian-plugin>

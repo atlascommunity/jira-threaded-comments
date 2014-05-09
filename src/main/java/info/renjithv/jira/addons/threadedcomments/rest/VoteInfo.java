@@ -1,4 +1,4 @@
-package com.atlassian.labs.jira.threadedcomments.rest;
+package info.renjithv.jira.addons.threadedcomments.rest;
 
 import net.java.ao.Entity;
 

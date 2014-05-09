@@ -1,4 +1,4 @@
-package com.atlassian.labs.jira.threadedcomments.rest;
+package info.renjithv.jira.addons.threadedcomments.rest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.crowd.embedded.api.User;
