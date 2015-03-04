@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
     <organization>
         <name>Renjith</name>
         <url>http://www.renjithv.info</url>
@@ -16,7 +16,8 @@
         <connection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
         <developerConnection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
-    </scm>
+      <tag>threaded-comments-1.5</tag>
+  </scm>
     <dependencies>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
