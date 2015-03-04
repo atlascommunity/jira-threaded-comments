@@ -94,7 +94,7 @@ public class HandleComments {
         }
 
         final Comment newComment = commentManager.create(issueManager.getIssueObject(comment.getIssueId()),
-                ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser().getName(),
+                    ComponentAccessor.getJiraAuthenticationContext().getUser(),
                 StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")), true);
         log.debug(newComment.getId());
         ao.executeInTransaction(new TransactionCallback<Void>() {
