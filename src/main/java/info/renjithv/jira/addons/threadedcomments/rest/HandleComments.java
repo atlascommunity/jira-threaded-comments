@@ -41,6 +41,7 @@ public class HandleComments {
         this.commentManager = commentManager;
     }
 
+
     @GET
     @AnonymousAllowed
     @Produces({MediaType.APPLICATION_JSON})
