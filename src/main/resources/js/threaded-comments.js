@@ -45,7 +45,7 @@ function AddCommentButtons() {
             var commentId = AJS.$(this).attr('id').split('-')[1];
             var commentUser = AJS.$(this).find('.action-details a').attr("rel");
             var commentBlock = AJS.$(this).children()[0];
-            var iscommentallowed = AJS.$('#issue-comment-add-submit');
+            var iscommentallowed = AJS.$('#issue-comment-add-submit').length > 0;
 
             if (iscommentallowed && AJS.$(commentBlock).find('.commentreply').length == 0) {
                 //console.log("Adding Reply block and handler for commentId - " + commentId);
@@ -68,6 +68,8 @@ function AddCommentButtons() {
                     AJS.$('.commentreplyarea').hide();
                     AJS.$('.commentreply').show();
                     AJS.$(this).next().toggle();
+                    AJS.$(this).next().find("textarea").focus();
+
                     AJS.$(this).hide();
                 });
                 AJS.$(this).find('.replycommentbutton').click(function () {
@@ -93,8 +95,8 @@ function AddCommentButtons() {
                             //console.log("New comment added :" + data);
                             JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                                 complete: function () {
-                                    AJS.$("#comment-" + data.commentid).scrollIntoView({marginBottom: 200, marginTop: 200});
-                                    AJS.$("#comment-" + data.commentid).addClass('focused');
+                                    //AJS.$("#comment-" + data.commentid).scrollIntoView({marginBottom: 200, marginTop: 200});
+                                    //AJS.$("#comment-" + data.commentid).addClass('focused');
                                 }
                             }]);
                             AJS.$(this).find('.hiddenthrobber').hide();
@@ -145,7 +147,7 @@ function AddCommentButtons() {
 }
 
 function ShowCurrentVotes() {
-    var issueID = AJS.$('input[name="id"]').val();
+    var issueID = JIRA.Issue.getIssueId();
     var commentData = {};
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentsvotes?issueid=" + issueID, function (data) {

@@ -1,21 +1,25 @@
 package info.renjithv.jira.addons.threadedcomments.rest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Hashtable;
@@ -53,10 +57,10 @@ public class HandleComments {
         else {
             log.debug("Issueid - " +  issueid);
         }
-        final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
-        if (null != issueObject && permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser)) {
+        if (null != issueObject && permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
@@ -86,14 +90,23 @@ public class HandleComments {
 
         if ( null == comment || (null == comment.getIssueId()) ||
                 (null == comment.getParentCommentId()) ||
-                (null == comment.getCommentBody())) {
+                (null == comment.getCommentBody()))
+        {
             return Response.notModified("Required parameters missing").build();
         }
-        if(null == commentObj){
+        if(null == commentObj)
+        {
             return Response.notModified("Wrong comment id").build();
         }
 
-        final Comment newComment = commentManager.create(issueManager.getIssueObject(comment.getIssueId()),
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+        final MutableIssue issueObject = issueManager.getIssueObject(comment.getIssueId());
+        if(!permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser))
+        {
+            return Response.status(Response.Status.FORBIDDEN).entity("No Permission").build();
+        }
+
+        final Comment newComment = commentManager.create(issueObject,
                     ComponentAccessor.getJiraAuthenticationContext().getUser(),
                 StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")), true);
         log.debug(newComment.getId());
@@ -125,12 +138,12 @@ public class HandleComments {
             log.debug("Issueid - " +  issueid);
         }
 
-        final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         final String userName = loggedInUser.getName().toLowerCase();
         final Hashtable<Long, VoteCommentsModel> data = new Hashtable<Long, VoteCommentsModel>();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
 
-        if (null != issueObject && permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser)) {
+        if (null != issueObject && permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
@@ -196,15 +209,15 @@ public class HandleComments {
     }
 
     private void UpdateVote(final Integer increment, final Long commentid, final Long issueid) {
-        final User loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Comment comment = commentManager.getCommentById(commentid);
 
         if (null != issueObject &&
                 null != loggedInUser &&
-                permissionManager.hasPermission(Permissions.VIEW_VOTERS_AND_WATCHERS, issueObject, loggedInUser) &&
+                permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser) &&
                 null != comment &&
-                !comment.getAuthorUser().equals(loggedInUser)) {
+                !comment.getAuthorApplicationUser().equals(loggedInUser)) {
 
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override

@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.8-SNAPSHOT</version>
     <organization>
         <name>Renjith</name>
-        <url>http://www.renjithv.info</url>
+        <url>http://www.atlazon.com</url>
     </organization>
     <name>JIRA Threaded Comments</name>
     <description>This enables comment threading in JIRA issues.</description>
