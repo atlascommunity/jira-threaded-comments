@@ -36,7 +36,10 @@ function AddCommentButtons() {
     var issueID = JIRA.Issue.getIssueId();
     var issueKey = AJS.Meta.get('issue-key');
 
-    //console.log("AddCommentButtons called - " + issueID);
+    if (!issueID || issueID === "" || !issueKey || issueKey == ""){
+        return;
+    }
+    //console.log("AddCommentButtons called - " + issueID + " " + issueKey);
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
         var projectKey = data.fields.project.key;
@@ -183,9 +186,6 @@ function ShowCurrentVotes() {
 
 
 AJS.$('document').ready(function () {
-    AddCommentButtons();
-    RearrangeComments();
-    ShowCurrentVotes();
     JIRA.ViewIssueTabs.onTabReady(function () {
         AddCommentButtons();
         RearrangeComments();
