@@ -56,7 +56,7 @@ function AddCommentButtons() {
                     '<textarea class="textcommentreply textarea long-field wiki-textfield mentionable" cols="60" rows="10" wrap="virtual" ' +
                     'data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" style="overflow-y: auto; height: 200px;"></textarea>' +
                     '<ul class="ops">' +
-                    '<li><a data="' + commentId + '" class="aui-button replycommentbutton">Add</a></li>' +
+                    '<li><a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add</a></li>' +
                     '<li><a href="#" data="' + commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li>' +
                     '<span class="icon throbber loading hiddenthrobber"></span>' +
                     '</ul>' +
