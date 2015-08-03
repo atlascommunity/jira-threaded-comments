@@ -4,3 +4,4 @@ Note the following:
 - This does not support previewing wiki markup while comments can include wiki markup
 
 Please be patient for the addon updates for major JIRA releases.
+Please avoid writing bad reviews instead of raising a bug report

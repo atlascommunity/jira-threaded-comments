@@ -36,7 +36,10 @@ function AddCommentButtons() {
     var issueID = JIRA.Issue.getIssueId();
     var issueKey = AJS.Meta.get('issue-key');
 
-    //console.log("AddCommentButtons called - " + issueID);
+    if (!issueID || issueID === "" || !issueKey || issueKey == ""){
+        return;
+    }
+    //console.log("AddCommentButtons called - " + issueID + " " + issueKey);
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
         var projectKey = data.fields.project.key;
@@ -78,6 +81,7 @@ function AddCommentButtons() {
                         console.log("empty input");
                         return;
                     }
+                    AJS.$(this).prop( "disabled", true );
                     AJS.$(this).find('.hiddenthrobber').show();
                     var encoded = AJS.$('<div/>').text(newComment).html();
                     var postData = {};
@@ -99,7 +103,10 @@ function AddCommentButtons() {
                                     //AJS.$("#comment-" + data.commentid).addClass('focused');
                                 }
                             }]);
+                        },
+                        complete: function(data) {
                             AJS.$(this).find('.hiddenthrobber').hide();
+                            AJS.$(this).prop( "disabled", false );
                         }
                     });
                 });
@@ -183,9 +190,6 @@ function ShowCurrentVotes() {
 
 
 AJS.$('document').ready(function () {
-    AddCommentButtons();
-    RearrangeComments();
-    ShowCurrentVotes();
     JIRA.ViewIssueTabs.onTabReady(function () {
         AddCommentButtons();
         RearrangeComments();
