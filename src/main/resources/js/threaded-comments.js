@@ -81,6 +81,7 @@ function AddCommentButtons() {
                         console.log("empty input");
                         return;
                     }
+                    AJS.$(this).prop( "disabled", true );
                     AJS.$(this).find('.hiddenthrobber').show();
                     var encoded = AJS.$('<div/>').text(newComment).html();
                     var postData = {};
@@ -102,7 +103,10 @@ function AddCommentButtons() {
                                     //AJS.$("#comment-" + data.commentid).addClass('focused');
                                 }
                             }]);
+                        },
+                        complete: function(data) {
                             AJS.$(this).find('.hiddenthrobber').hide();
+                            AJS.$(this).prop( "disabled", false );
                         }
                     });
                 });
