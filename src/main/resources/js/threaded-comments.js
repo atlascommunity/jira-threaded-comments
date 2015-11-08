@@ -1,9 +1,10 @@
 function RearrangeComments() {
-    var issueID = JIRA.Issue.getIssueId();
+    var issueKey = AJS.Meta.get('issue-key');
     //#4
-    if (!issueID || issueID === ""){
+    if (!issueKey || issueKey === ""){
         return;
     }
+    var issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
     var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
         AJS.$.each(data, function () {
@@ -32,13 +33,13 @@ function RearrangeComments() {
 }
 
 function AddCommentButtons() {
-    var loggedInUser = AJS.Meta.get('remote-user');
-    var issueID = JIRA.Issue.getIssueId();
     var issueKey = AJS.Meta.get('issue-key');
 
-    if (!issueID || issueID === "" || !issueKey || issueKey == ""){
+    if (!issueKey || issueKey == ""){
         return;
     }
+    var loggedInUser = AJS.Meta.get('remote-user');
+    var issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
     //console.log("AddCommentButtons called - " + issueID + " " + issueKey);
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
@@ -56,7 +57,7 @@ function AddCommentButtons() {
                 AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
 
                 AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
-                    '<textarea class="textcommentreply textarea long-field wiki-textfield mentionable" cols="60" rows="10" wrap="virtual" ' +
+                    '<textarea class="textcommentreply textarea long-field mentionable" cols="60" rows="10" wrap="virtual" ' +
                     'data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" style="overflow-y: auto; height: 200px;"></textarea>' +
                     '<ul class="ops">' +
                     '<li><a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add</a></li>' +
@@ -77,6 +78,7 @@ function AddCommentButtons() {
                 });
                 AJS.$(this).find('.replycommentbutton').click(function () {
                     var newComment = AJS.$(this).parent().parent().parent().children("textarea").val();
+                    console.log("Reply invoked " + newComment);
                     if (newComment.length == 0) {
                         console.log("empty input");
                         return;
@@ -89,18 +91,16 @@ function AddCommentButtons() {
                     postData.parentcommentid = AJS.$(this).attr('data');
                     postData.issueid = issueID;
 
-                    //console.log("new data " + postData);
+                    console.log("new data " + postData);
                     AJS.$.ajax({
                         url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/addcomment",
                         data: JSON.stringify(postData),
                         type: "POST",
                         contentType: "application/json",
                         success: function (data) {
-                            //console.log("New comment added :" + data);
+                            console.log("New comment added :" + data);
                             JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId(), {
                                 complete: function () {
-                                    //AJS.$("#comment-" + data.commentid).scrollIntoView({marginBottom: 200, marginTop: 200});
-                                    //AJS.$("#comment-" + data.commentid).addClass('focused');
                                 }
                             }]);
                         },
@@ -154,7 +154,12 @@ function AddCommentButtons() {
 }
 
 function ShowCurrentVotes() {
-    var issueID = JIRA.Issue.getIssueId();
+    var issueKey = AJS.Meta.get('issue-key');
+    if (!issueKey || issueKey === ""){
+        return;
+    }
+    var issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
+
     var commentData = {};
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentsvotes?issueid=" + issueID, function (data) {
