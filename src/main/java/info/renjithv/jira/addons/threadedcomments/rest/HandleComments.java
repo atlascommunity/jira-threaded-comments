@@ -58,6 +58,11 @@ public class HandleComments {
             log.debug("Issueid - " +  issueid);
         }
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+        if(null == loggedInUser)
+        {
+            log.debug("Anonymous user. No data");
+            return Response.ok().build();
+        }
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
         if (null != issueObject && permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
@@ -100,14 +105,18 @@ public class HandleComments {
         }
 
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+        if(null == loggedInUser)
+        {
+            log.debug("Anonymous user. No action");
+            return Response.notModified().build();
+        }
         final MutableIssue issueObject = issueManager.getIssueObject(comment.getIssueId());
         if(!permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser))
         {
             return Response.status(Response.Status.FORBIDDEN).entity("No Permission").build();
         }
 
-        final Comment newComment = commentManager.create(issueObject,
-                    ComponentAccessor.getJiraAuthenticationContext().getUser(),
+        final Comment newComment = commentManager.create(issueObject,loggedInUser,
                 StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")), true);
         log.debug(newComment.getId());
         ao.executeInTransaction(new TransactionCallback<Void>() {
@@ -139,6 +148,11 @@ public class HandleComments {
         }
 
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+        if(null == loggedInUser)
+        {
+            log.debug("Anonymous user. No data");
+            return Response.ok().build();
+        }
         final String userName = loggedInUser.getName().toLowerCase();
         final Hashtable<Long, VoteCommentsModel> data = new Hashtable<Long, VoteCommentsModel>();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
@@ -210,6 +224,12 @@ public class HandleComments {
 
     private void UpdateVote(final Integer increment, final Long commentid, final Long issueid) {
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+        if(null == loggedInUser)
+        {
+            log.error("Anonymous user. No data");
+            return;
+        }
+
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Comment comment = commentManager.getCommentById(commentid);
 
