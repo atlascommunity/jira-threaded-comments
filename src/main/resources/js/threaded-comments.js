@@ -1,3 +1,6 @@
+var debug = function(msg){
+    console.log(msg);
+}
 function RearrangeComments() {
     var issueKey = AJS.Meta.get('issue-key');
     //#4
@@ -8,24 +11,24 @@ function RearrangeComments() {
     var parents = {};
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
         AJS.$.each(data, function () {
-            //console.log(this.commentid);
+            debug(this.commentid);
             parents[this.commentid] = this.parentcommentid;
         });
         AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function () {
             var commentId = AJS.$(this).attr('id').split('-')[1];
 
             var parent = parents[commentId];
-            //console.log(commentId);
+            debug(commentId);
             if (parent) {
                 var parentId = '#comment-' + parent;
                 if (AJS.$(parentId).length != 0) {
-                    //console.log("found parent in dom");
+                    debug("found parent in dom");
                     AJS.$(this).addClass('movedcomment');
                     AJS.$(this).appendTo(parentId);
                 }
             }
             else {
-                //console.log("no parent found for " + commentId);
+                debug("no parent found for " + commentId);
             }
         });
         AJS.$('.issue-data-block.focused').scrollIntoView({marginBottom: 200,marginTop: 200});
@@ -33,6 +36,8 @@ function RearrangeComments() {
 }
 
 function AddCommentButtons() {
+    debug("AddCommentButtons called");
+
     var issueKey = AJS.Meta.get('issue-key');
 
     if (!issueKey || issueKey == ""){
@@ -40,7 +45,7 @@ function AddCommentButtons() {
     }
     var loggedInUser = AJS.Meta.get('remote-user');
     var issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
-    //console.log("AddCommentButtons called - " + issueID + " " + issueKey);
+    debug("AddCommentButtons called - " + issueID + " " + issueKey);
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
         var projectKey = data.fields.project.key;
@@ -52,7 +57,7 @@ function AddCommentButtons() {
             var iscommentallowed = AJS.$('#issue-comment-add-submit').length > 0;
 
             if (iscommentallowed && AJS.$(commentBlock).find('.commentreply').length == 0) {
-                //console.log("Adding Reply block and handler for commentId - " + commentId);
+                debug("Adding Reply block and handler for commentId - " + commentId);
 
                 AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
 
@@ -78,20 +83,20 @@ function AddCommentButtons() {
                 });
                 AJS.$(this).find('.replycommentbutton').click(function () {
                     var newComment = AJS.$(this).parent().parent().parent().children("textarea").val();
-                    console.log("Reply invoked " + newComment);
+                    debug("Reply invoked " + newComment);
                     if (newComment.length == 0) {
                         console.log("empty input");
                         return;
                     }
-                    AJS.$(this).prop( "disabled", true );
-                    AJS.$(this).find('.hiddenthrobber').show();
+                    AJS.$(this).attr( "disabled", true );
+                    AJS.$(this).find('.hiddenthrobber').removeClass('hiddenthrobber');
                     var encoded = AJS.$('<div/>').text(newComment).html();
                     var postData = {};
                     postData.commentbody = newComment;
                     postData.parentcommentid = AJS.$(this).attr('data');
                     postData.issueid = issueID;
 
-                    console.log("new data " + postData);
+                    debug("new data " + postData);
                     AJS.$.ajax({
                         url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/addcomment",
                         data: JSON.stringify(postData),
@@ -105,8 +110,8 @@ function AddCommentButtons() {
                             }]);
                         },
                         complete: function(data) {
-                            AJS.$(this).find('.hiddenthrobber').hide();
-                            AJS.$(this).prop( "disabled", false );
+                            AJS.$(this).find('.throbber').addClass('hiddenthrobber');
+                            AJS.$(this).attr( "disabled", false );
                         }
                     });
                 });
@@ -132,7 +137,7 @@ function AddCommentButtons() {
                     AJS.$.ajax({
                         url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/upvote?commentid=" + AJS.$(this).attr('commentid') + '&issueid=' + issueID,
                         success: function () {
-                            //console.log('Up voted');
+                            debug('Up voted');
                             ShowCurrentVotes();
                         }
                     });
@@ -143,7 +148,7 @@ function AddCommentButtons() {
                     AJS.$.ajax({
                         url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/downvote?commentid=" + AJS.$(this).attr('commentid') + '&issueid=' + issueID,
                         success: function () {
-                            //console.log('Down voted');
+                            debug('Down voted');
                             ShowCurrentVotes();
                         }
                     });
@@ -193,14 +198,18 @@ function ShowCurrentVotes() {
     );
 }
 
+JIRA.ViewIssueTabs.onTabReady(function () {
+    debug("Tab ready");
+    AddCommentButtons();
+    RearrangeComments();
+    ShowCurrentVotes();
+});
 
 AJS.$('document').ready(function () {
-    JIRA.ViewIssueTabs.onTabReady(function () {
-        AddCommentButtons();
-        RearrangeComments();
-        ShowCurrentVotes();
-    });
+    debug("Doc ready");
+
     JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
+        debug("Page refreshed");
         RearrangeComments();
         AddCommentButtons();
         ShowCurrentVotes();

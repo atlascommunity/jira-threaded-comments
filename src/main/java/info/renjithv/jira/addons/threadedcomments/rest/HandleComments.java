@@ -6,8 +6,8 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.transaction.TransactionCallback;
@@ -65,7 +65,7 @@ public class HandleComments {
         }
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
-        if (null != issueObject && permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
+        if (null != issueObject && permissionManager.hasPermission(Permissions.BROWSE, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
@@ -111,7 +111,7 @@ public class HandleComments {
             return Response.notModified().build();
         }
         final MutableIssue issueObject = issueManager.getIssueObject(comment.getIssueId());
-        if(!permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser))
+        if(!permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser))
         {
             return Response.status(Response.Status.FORBIDDEN).entity("No Permission").build();
         }
@@ -157,7 +157,7 @@ public class HandleComments {
         final Hashtable<Long, VoteCommentsModel> data = new Hashtable<Long, VoteCommentsModel>();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
 
-        if (null != issueObject && permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
+        if (null != issueObject && permissionManager.hasPermission(Permissions.BROWSE, issueObject, loggedInUser)) {
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
@@ -235,7 +235,7 @@ public class HandleComments {
 
         if (null != issueObject &&
                 null != loggedInUser &&
-                permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser) &&
+                permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser) &&
                 null != comment &&
                 !comment.getAuthorApplicationUser().equals(loggedInUser)) {
 
