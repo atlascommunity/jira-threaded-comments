@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
     <organization>
         <name>Renjith</name>
         <url>http://www.atlazon.com</url>
@@ -17,6 +17,12 @@
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
       <tag>HEAD</tag>
   </scm>
+    <distributionManagement>
+        <repository>
+            <id>maven-repository</id>
+            <url>${local.maven.repository}</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
@@ -155,5 +161,6 @@
         <ao.version>0.19.7</ao.version>
         <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
         <testkit.version>5.2.26</testkit.version>
+        <local.maven.repository>file://localrepo</local.maven.repository>
     </properties>
 </project>
