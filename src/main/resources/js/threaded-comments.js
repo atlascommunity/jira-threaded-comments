@@ -17,21 +17,28 @@ AJS.$('document').ready(function () {
 
     issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
 
-    AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
-        projectKey = data.fields.project.key;
-        debug("threaded comments context - " + issueKey + "," + issueID + "," + loggedInUser);
+    AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/mypermissions?issueId=" + issueID, function (data) {
+        if(data.permissions.COMMENT_ISSUE.havePermission) {
+            AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
+                projectKey = data.fields.project.key;
+                debug("threaded comments context - " + issueKey + "," + issueID + "," + loggedInUser);
 
-        addCommentButtons();
+                addCommentButtons();
+            } );
+
+            JIRA.ViewIssueTabs.onTabReady(function () {
+                debug("Tab ready");
+                addCommentButtons();
+            } );
+        }
         rearrangeComments();
         showCurrentVotes();
-    } );
+        JIRA.ViewIssueTabs.onTabReady(function () {
+            debug("Tab ready - rearrange/show");
+            rearrangeComments();
+            showCurrentVotes();
+        } );
 
-    JIRA.ViewIssueTabs.onTabReady(function () {
-        debug("Tab ready");
-        debug(this);
-        addCommentButtons();
-        rearrangeComments();
-        showCurrentVotes();
     } );
 } );
 

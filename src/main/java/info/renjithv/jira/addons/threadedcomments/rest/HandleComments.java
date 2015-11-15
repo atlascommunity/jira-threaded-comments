@@ -60,8 +60,8 @@ public class HandleComments {
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         if(null == loggedInUser)
         {
-            log.debug("Anonymous user. No data");
-            return Response.ok().build();
+            log.debug("Anonymous user.");
+            //return Response.ok().build();
         }
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
@@ -107,8 +107,7 @@ public class HandleComments {
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         if(null == loggedInUser)
         {
-            log.debug("Anonymous user. No action");
-            return Response.notModified().build();
+            log.debug("Anonymous user.");
         }
         final MutableIssue issueObject = issueManager.getIssueObject(comment.getIssueId());
         if(!permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser))
@@ -148,12 +147,7 @@ public class HandleComments {
         }
 
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-        if(null == loggedInUser)
-        {
-            log.debug("Anonymous user. No data");
-            return Response.ok().build();
-        }
-        final String userName = loggedInUser.getName().toLowerCase();
+        final String userName = getUserName(loggedInUser);
         final Hashtable<Long, VoteCommentsModel> data = new Hashtable<Long, VoteCommentsModel>();
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
 
@@ -198,6 +192,21 @@ public class HandleComments {
         return Response.ok(data.values()).build();
     }
 
+    private String getUserName(ApplicationUser loggedInUser)
+    {
+        String derivedUserName;
+        if(null == loggedInUser)
+        {
+            log.debug("Anonymous user.");
+            derivedUserName = "Anonymous-" + System.currentTimeMillis();
+        }
+        else
+        {
+            derivedUserName = loggedInUser.getName().toLowerCase();
+        }
+        return derivedUserName;
+    }
+
     @GET
     @AnonymousAllowed
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -226,30 +235,31 @@ public class HandleComments {
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
         if(null == loggedInUser)
         {
-            log.error("Anonymous user. No data");
-            return;
+            log.debug("Anonymous user.");
         }
 
         final MutableIssue issueObject = issueManager.getIssueObject(issueid);
         final Comment comment = commentManager.getCommentById(commentid);
+        final String userName = getUserName(loggedInUser);
+
 
         if (null != issueObject &&
-                null != loggedInUser &&
                 permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser) &&
                 null != comment &&
-                !comment.getAuthorApplicationUser().equals(loggedInUser)) {
+                (null == loggedInUser || !loggedInUser.equals(comment.getAuthorApplicationUser()))
+                ) {
 
             ao.executeInTransaction(new TransactionCallback<Void>() {
                 @Override
                 public Void doInTransaction() {
                     VoteInfo[] votes = ao.find(VoteInfo.class, "COMMENT_ID = ? AND USER_NAME = ? AND ISSUE_ID = ?",
-                            commentid, loggedInUser.getName(), issueid);
+                            commentid, userName, issueid);
                     switch (votes.length) {
                         case 0:
                             final VoteInfo voteInfo = ao.create(VoteInfo.class);
                             voteInfo.setCommentId(commentid);
                             voteInfo.setIssueId(issueid);
-                            voteInfo.setUserName(loggedInUser.getName());
+                            voteInfo.setUserName(userName);
                             voteInfo.setVoteCount(increment);
                             voteInfo.save();
                             break;
