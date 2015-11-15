@@ -45,7 +45,7 @@ AJS.$('document').ready(function () {
 
 
 var debug = function (msg) {
-    //console.log(msg);
+    console.log(msg);
 };
 
 var replyClick = function (event) {
@@ -126,17 +126,22 @@ var downVote = function (event) {
 var addCurrentVoteBlock = function () {
     var commentBlock = AJS.$(this).children()[0];
     var commentId = AJS.$(this).attr('id').split('-')[1];
+    debug("Checking block for comment - " + commentId);
+
     AJS.$(commentBlock).find('.action-links').each(function () {
         //Add the current votes
         var cmData = commentData["comment-" + commentId];
 
         if (cmData && cmData.downvotes) {
+            debug("Adding dislike block for comment - " + commentId);
             var plu = cmData.downvotes > 1 ? 's':'';
             AJS.$(this).before(
             AJS.$('<div class="description currentvotes dislikes">' + cmData.downvotes + ' dislike' + plu + '</div>')
             );
         }
         if (cmData && cmData.upvotes) {
+            debug("Adding like block for comment - " + commentId);
+
             var plu = cmData.upvotes > 1 ? 's':'';
             AJS.$(this).before(
                 AJS.$('<div class="description currentvotes likes">' + cmData.upvotes + ' like' + plu + '</div>')
@@ -151,6 +156,11 @@ var addCurrentVotes = function (data) {
     } );
     AJS.$('.currentvotes').remove();
 
+    debug("all existing vote blocks removed");
+    AJS.$('.currentvotes').each(function(){
+        console.log(this);
+    });
+
     AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(addCurrentVoteBlock);
 };
 
@@ -158,6 +168,9 @@ var showCurrentVotes = function () {
     if (!issueKey || issueKey === "") {
         return;
     }
+
+    //reset the cache
+    commentData = {};
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentsvotes?issueid=" + issueID, addCurrentVotes);
 };
@@ -187,6 +200,9 @@ var rearrangeComments = function () {
         return;
     }
 
+    //Reset the cache
+    parents = {};
+    
     //Load the relationships and then move comments around
     AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/commentdata?issueid=" + issueID, function (data) {
         AJS.$.each(data, function () {
