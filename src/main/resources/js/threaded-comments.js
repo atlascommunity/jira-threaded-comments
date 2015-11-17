@@ -1,21 +1,57 @@
-var issueKey = AJS.Meta.get('issue-key');
-var loggedInUser = AJS.Meta.get('remote-user');
+var issueKey;
+var loggedInUser;
 var issueID;
 var projectKey;
 
 var parents = {};
 var commentData = {};
+//var lastUpdatedTime;
+var retries = 0;
 
-AJS.$('document').ready(function () {
-    debug("doc ready");
+var tm = function(){
+    var d = new Date();
+    return d.getMilliseconds();
+}
 
-    AJS.$(document).on("click", '.commentreply', replyClick);
-    AJS.$(document).on("click", '.replycommentbutton', replyCommentAdd);
-    AJS.$(document).on("click", '.replycommentcancel', cancelHandle);
-    AJS.$(document).on("click", '.upvote', upVote);
-    AJS.$(document).on("click", '.downvote', downVote);
+var retry = function() {
+    if(retries < 60) {
+        setTimeout(doAll, 1000);
+    }
+    retries++;
+}
 
-    issueID = AJS.$(".issue-header-content  #key-val").attr("rel");
+var doAll = function(){
+    debug("doAll called");
+
+    try {
+        issueID = JIRA.Issue.getIssueId();
+        issueKey = JIRA.Issue.getIssueKey();
+        loggedInUser = JIRA.Meta.getLoggedInUser().name;
+    }
+    catch (err) {
+        debug("Exception. Retrying...")
+        retry();
+        return;
+    }
+    if(!issueID || !issueKey)
+    {
+        debug("Null values. Retrying...")
+        retry();
+        return;
+    }
+    debug("Got all values doAll");
+
+//    if(lastUpdatedTime)
+//    {
+//        new Date()
+//        if(tm() - lastUpdatedTime < 2000)
+//        {
+//            debug("Too frequent updates, ignoring");
+//            return;
+//        }
+//    }
+
+//    lastUpdatedTime = tm();
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/mypermissions?issueId=" + issueID, function (data) {
         if(data.permissions.COMMENT_ISSUE.havePermission) {
@@ -24,25 +60,38 @@ AJS.$('document').ready(function () {
                 debug("threaded comments context - " + issueKey + "," + issueID + "," + loggedInUser);
 
                 addCommentButtons();
-            } );
-
-            JIRA.ViewIssueTabs.onTabReady(function () {
-                debug("Tab ready");
-                addCommentButtons();
+                rearrangeComments();
+                showCurrentVotes();
             } );
         }
-        rearrangeComments();
-        showCurrentVotes();
-        JIRA.ViewIssueTabs.onTabReady(function () {
-            debug("Tab ready - rearrange/show");
+        else
+        {
+            debug("Rearrange/show");
             rearrangeComments();
             showCurrentVotes();
-        } );
-
+        }
     } );
+}
+
+AJS.$('document').ready(function () {
+    debug("doc ready");
+    //Needed only once
+    AJS.$(document).on("click", '.commentreply', replyClick);
+    AJS.$(document).on("click", '.replycommentbutton', replyCommentAdd);
+    AJS.$(document).on("click", '.replycommentcancel', cancelHandle);
+    AJS.$(document).on("click", '.upvote', upVote);
+    AJS.$(document).on("click", '.downvote', downVote);
+
+    JIRA.ViewIssueTabs.onTabReady(function (in1, in2, in3) {
+        if("activitymodule" == in1.attr("id"))
+        {
+            debug("Tab ready");
+            doAll();
+        }
+    });
+
+    doAll();
 } );
-
-
 
 var debug = function (msg) {
     //console.log(msg);
@@ -137,6 +186,7 @@ var downVote = function (event) {
 
 
 var addCurrentVoteBlock = function () {
+    debug("addCurrentVoteBlock called");
     var commentBlock = AJS.$(this).children()[0];
     var commentId = AJS.$(this).attr('id').split('-')[1];
     debug("Checking block for comment - " + commentId);
@@ -164,6 +214,8 @@ var addCurrentVoteBlock = function () {
 };
 
 var addCurrentVotes = function (data) {
+    debug("addCurrentVotes called");
+
     AJS.$.each(data, function () {
         commentData['comment-' + this.commentid] = this;
     } );
@@ -178,9 +230,7 @@ var addCurrentVotes = function (data) {
 };
 
 var showCurrentVotes = function () {
-    if (!issueKey || issueKey === "") {
-        return;
-    }
+    debug("showCurrentVotes called");
 
     //reset the cache
     commentData = {};
@@ -189,6 +239,7 @@ var showCurrentVotes = function () {
 };
 
 var moveComment = function () {
+    debug("moveComment called");
    var commentId = AJS.$(this).attr('id').split('-')[1];
 
    var parent = parents[commentId];
@@ -238,6 +289,7 @@ function addCommentButtons() {
 };
 
 var checkAndAddButtons = function () {
+    debug("checkAndAddButtons called");
     var commentId = AJS.$(this).attr('id').split('-')[1];
     var commentUser = AJS.$(this).find('.action-details a').attr("rel");
     var commentBlock = AJS.$(this).children()[0];
@@ -262,6 +314,7 @@ var checkAndAddButtons = function () {
 };
 
 var addCommentButtonsToBlock = function (commentId, commentBlock) {
+    debug("addCommentButtonsToBlock called");
     AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
 
     AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
@@ -275,6 +328,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
 };
 
 var addVoteLinks = function (commentId) {
+    debug("addVoteLinks called");
    AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
        '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
        '<a class="downvote" commentid=' + commentId + ' title="Down votes this comment">' +
