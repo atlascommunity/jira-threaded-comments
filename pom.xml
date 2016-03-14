@@ -5,7 +5,7 @@
     <artifactId>threaded-comments</artifactId>
     <version>1.13-SNAPSHOT</version>
     <organization>
-        <name>Renjith</name>
+        <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
     </organization>
     <name>JIRA Threaded Comments</name>
@@ -15,7 +15,7 @@
         <connection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
         <developerConnection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
-      <tag>HEAD</tag>
+      <tag>threaded-comments-1.13</tag>
   </scm>
     <distributionManagement>
         <repository>
