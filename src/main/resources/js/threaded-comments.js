@@ -83,7 +83,7 @@ AJS.$('document').ready(function () {
     AJS.$(document).on("click", '.downvote', downVote);
 
     JIRA.ViewIssueTabs.onTabReady(function (in1, in2, in3) {
-        if("activitymodule" == in1.attr("id"))
+        if("activitymodule" == in1.attr("id") || "activitymodule" == in1.parent().attr("id"))
         {
             debug("Tab ready");
             doAll();
