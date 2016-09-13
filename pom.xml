@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.13-SNAPSHOT</version>
+    <version>1.13</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
@@ -12,8 +12,8 @@
     <description>This enables comment threading in JIRA issues.</description>
     <packaging>atlassian-plugin</packaging>
     <scm>
-        <connection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
-        <developerConnection>scm:git:https://bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
+        <connection>scm:git:git@bitbucket.org:vrenjith/jira-threaded-comments.git</connection>
+        <developerConnection>scm:git:git@bitbucket.org:vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
       <tag>threaded-comments-1.13</tag>
   </scm>
@@ -155,8 +155,8 @@
         </plugins>
     </build>
     <properties>
-        <jira.version>7.1.1</jira.version>
-        <amps.version>6.1.2</amps.version>
+        <jira.version>7.2.0</jira.version>
+        <amps.version>6.2.6</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <ao.version>0.19.7</ao.version>
         <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
