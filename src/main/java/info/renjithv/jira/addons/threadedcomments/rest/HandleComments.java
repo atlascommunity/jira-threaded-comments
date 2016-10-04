@@ -131,8 +131,8 @@ public class HandleComments {
             }
         });
         comment.setCommentId(newComment.getId());
-		final JsonEntityPropertyManager jsonEntityPropertyManager = ComponentAccessor.getComponent(JsonEntityPropertyManager.class);
-		jsonEntityPropertyManager.put(loggedInUser, "sd.comment.property", newComment.getId(), "sd.public.comment", "{ \"internal\" : true}" , (java.util.function.BiFunction) null, false);
+        final JsonEntityPropertyManager jsonEntityPropertyManager = ComponentAccessor.getComponent(JsonEntityPropertyManager.class);
+        jsonEntityPropertyManager.put(loggedInUser, "sd.comment.property", newComment.getId(), "sd.public.comment", "{ \"internal\" : true}" , (java.util.function.BiFunction) null, false);
         return Response.ok(comment).build();
     }
 
