@@ -11,6 +11,7 @@ import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -130,7 +131,8 @@ public class HandleComments {
             }
         });
         comment.setCommentId(newComment.getId());
-
+		final JsonEntityPropertyManager jsonEntityPropertyManager = ComponentAccessor.getComponent(JsonEntityPropertyManager.class);
+		jsonEntityPropertyManager.put(loggedInUser, "sd.comment.property", newComment.getId(), "sd.public.comment", "{ \"internal\" : true}" , (java.util.function.BiFunction) null, false);
         return Response.ok(comment).build();
     }
 
