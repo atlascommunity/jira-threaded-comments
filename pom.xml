@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.15-SNAPSHOT</version>
+    <version>1.15</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
@@ -12,10 +12,10 @@
     <description>This enables comment threading in JIRA issues.</description>
     <packaging>atlassian-plugin</packaging>
     <scm>
-        <connection>scm:git:ssh://git@bitbucket.org:vrenjith/jira-threaded-comments.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org:vrenjith/jira-threaded-comments.git</developerConnection>
+        <connection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
+        <developerConnection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
-      <tag>threaded-comments-1.13</tag>
+      <tag>threaded-comments-1.15</tag>
   </scm>
     <distributionManagement>
         <repository>
