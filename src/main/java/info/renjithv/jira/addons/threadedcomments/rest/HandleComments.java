@@ -117,7 +117,10 @@ public class HandleComments {
         }
 
         final Comment newComment = commentManager.create(issueObject,loggedInUser,
-                StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")), true);
+                StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")),
+                commentObj.getGroupLevel(),
+                commentObj.getRoleLevelId(),
+                true);
         log.debug(newComment.getId());
         ao.executeInTransaction(new TransactionCallback<Void>() {
             @Override
