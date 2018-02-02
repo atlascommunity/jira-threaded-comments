@@ -22,6 +22,17 @@
             <url>${local.maven.repository}</url>
         </repository>
     </distributionManagement>
+    <dependencyManagement>
+        <dependencies>
+            <!-- jira-api declares 1.0.1 but atlassian provides 1.0.1b only -->
+            <dependency>
+                <groupId>jta</groupId>
+                <artifactId>jta</artifactId>
+                <version>1.0.1b</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
