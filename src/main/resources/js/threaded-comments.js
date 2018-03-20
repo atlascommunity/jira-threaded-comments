@@ -91,7 +91,7 @@ AJS.$('document').ready(function () {
 });
 
 var debug = function (msg) {
-    console.log(msg);
+    //console.log(msg);
 };
 
 var replyClick = function (event) {
