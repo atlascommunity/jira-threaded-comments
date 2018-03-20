@@ -2,16 +2,15 @@ package info.renjithv.jira.addons.threadedcomments.rest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.sal.api.transaction.TransactionCallback;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -50,37 +49,29 @@ public class HandleComments {
     @AnonymousAllowed
     @Produces({MediaType.APPLICATION_JSON})
     @Path("commentdata")
-    public Response commentData(@QueryParam("issueid") final Long issueid)
-    {
+    public Response commentData(@QueryParam("issueid") final Long issueid) {
         if (null == issueid) {
             return Response.notModified("Issue Id missing").build();
+        } else {
+            log.debug("Issueid - " + issueid);
         }
-        else {
-            log.debug("Issueid - " +  issueid);
-        }
-        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-        if(null == loggedInUser)
-        {
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        if (null == loggedInUser) {
             log.debug("Anonymous user.");
-            //return Response.ok().build();
         }
-        final MutableIssue issueObject = issueManager.getIssueObject(issueid);
-        final Hashtable<Integer, CommentModel> commentData = new Hashtable<Integer, CommentModel>();
-        if (null != issueObject && permissionManager.hasPermission(Permissions.BROWSE, issueObject, loggedInUser)) {
-            ao.executeInTransaction(new TransactionCallback<Void>() {
-                @Override
-                public Void doInTransaction() {
-                    CommentInfo[] commentInfos = ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
-                    for(CommentInfo c : commentInfos) {
-                        commentData.put(c.getID(), new CommentModel("",c.getParentCommentId(),c.getIssueId(), c.getCommentId()));
-                    }
-                    return null;
+
+        final MutableIssue issueObject = this.issueManager.getIssueObject(issueid);
+        final Hashtable<Integer, CommentModel> commentData = new Hashtable<>();
+        if (null != issueObject && this.permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
+            this.ao.executeInTransaction(() -> {
+                CommentInfo[] commentInfos = HandleComments.this.ao.find(CommentInfo.class, "ISSUE_ID = ?", issueid);
+                for (CommentInfo c : commentInfos) {
+                    commentData.put(c.getID(), new CommentModel("", c.getParentCommentId(), c.getIssueId(), c.getCommentId()));
                 }
+                return null;
             });
 
-        }
-        else
-        {
+        } else {
             log.warn("Get comment request ignored");
         }
         return Response.ok(commentData.values()).build();
@@ -90,52 +81,44 @@ public class HandleComments {
     @AnonymousAllowed
     @Produces({MediaType.APPLICATION_JSON})
     @Path("addcomment")
-    public Response addComment(final CommentModel comment)
-    {
-        final Comment commentObj = commentManager.getCommentById(comment.getParentCommentId());
+    public Response addComment(final CommentModel comment) {
+        final Comment commentObj = this.commentManager.getCommentById(comment.getParentCommentId());
 
-        if ( null == comment || (null == comment.getIssueId()) ||
+        if (null == comment || (null == comment.getIssueId()) ||
                 (null == comment.getParentCommentId()) ||
-                (null == comment.getCommentBody()))
-        {
+                (null == comment.getCommentBody())) {
             return Response.notModified("Required parameters missing").build();
         }
-        if(null == commentObj)
-        {
+        if (null == commentObj) {
             return Response.notModified("Wrong comment id").build();
         }
 
-        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-        if(null == loggedInUser)
-        {
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        if (null == loggedInUser) {
             log.debug("Anonymous user.");
         }
-        final MutableIssue issueObject = issueManager.getIssueObject(comment.getIssueId());
-        if(!permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser))
-        {
+        final MutableIssue issueObject = this.issueManager.getIssueObject(comment.getIssueId());
+        if (!this.permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser)) {
             return Response.status(Response.Status.FORBIDDEN).entity("No Permission").build();
         }
 
-        final Comment newComment = commentManager.create(issueObject,loggedInUser,
-                StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n","\n")),
+        final Comment newComment = this.commentManager.create(issueObject, loggedInUser,
+                StringEscapeUtils.unescapeHtml4(comment.getCommentBody().replaceAll("\\n", "\n")),
                 commentObj.getGroupLevel(),
                 commentObj.getRoleLevelId(),
                 true);
         log.debug(newComment.getId());
-        ao.executeInTransaction(new TransactionCallback<Void>() {
-            @Override
-            public Void doInTransaction() {
-                final CommentInfo commentInfo = ao.create(CommentInfo.class);
-                commentInfo.setCommentId(newComment.getId());
-                commentInfo.setParentCommentId(comment.getParentCommentId());
-                commentInfo.setIssueId(comment.getIssueId());
-                commentInfo.save();
-                return null;
-            }
+        this.ao.executeInTransaction(() -> {
+            final CommentInfo commentInfo = HandleComments.this.ao.create(CommentInfo.class);
+            commentInfo.setCommentId(newComment.getId());
+            commentInfo.setParentCommentId(comment.getParentCommentId());
+            commentInfo.setIssueId(comment.getIssueId());
+            commentInfo.save();
+            return null;
         });
         comment.setCommentId(newComment.getId());
         final JsonEntityPropertyManager jsonEntityPropertyManager = ComponentAccessor.getComponent(JsonEntityPropertyManager.class);
-        jsonEntityPropertyManager.put(loggedInUser, "sd.comment.property", newComment.getId(), "sd.public.comment", "{ \"internal\" : true}" , (java.util.function.BiFunction) null, false);
+        jsonEntityPropertyManager.put(loggedInUser, "sd.comment.property", newComment.getId(), "sd.public.comment", "{ \"internal\" : true}", (java.util.function.BiFunction) null, false);
         return Response.ok(comment).build();
     }
 
@@ -146,67 +129,57 @@ public class HandleComments {
     public Response getIssueCommentsVotes(@QueryParam("issueid") final Long issueid) {
         if (null == issueid) {
             return Response.notModified("Issue Id missing").build();
+        } else {
+            log.debug("Issueid - " + issueid);
         }
-        else {
-            log.debug("Issueid - " +  issueid);
-        }
 
-        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-        final String userName = getUserName(loggedInUser);
-        final Hashtable<Long, VoteCommentsModel> data = new Hashtable<Long, VoteCommentsModel>();
-        final MutableIssue issueObject = issueManager.getIssueObject(issueid);
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        final String userName = this.getUserName(loggedInUser);
+        final Hashtable<Long, VoteCommentsModel> data = new Hashtable<>();
+        final MutableIssue issueObject = this.issueManager.getIssueObject(issueid);
 
-        if (null != issueObject && permissionManager.hasPermission(Permissions.BROWSE, issueObject, loggedInUser)) {
-            ao.executeInTransaction(new TransactionCallback<Void>() {
-                @Override
-                public Void doInTransaction() {
-                    VoteInfo[] votes = ao.find(VoteInfo.class, "ISSUE_ID = ?", issueid);
-                    for (VoteInfo voteInfo : votes) {
-                        log.debug("Vote id - " + voteInfo.getID());
-                        VoteCommentsModel inData = new VoteCommentsModel(voteInfo.getCommentId(), 0, false, 0, false);
-                        if (data.containsKey(voteInfo.getCommentId())) {
-                            inData = data.get(voteInfo.getCommentId());
-                        }
-
-                        switch (voteInfo.getVoteCount()) {
-                            case -1:
-                                inData.setDownVotes(inData.getDownVotes() + 1);
-                                if(0 == userName.compareTo(voteInfo.getUserName().toLowerCase())){
-                                    inData.setUserDownVoted(true);
-                                }
-                                break;
-                            case 1:
-                                inData.setUpVotes(inData.getUpVotes() + 1);
-                                if(0 == userName.compareTo(voteInfo.getUserName().toLowerCase())){
-                                    inData.setUserUpVoted(true);
-                                }
-                                break;
-                            default:
-                                log.error("No way this can happen");
-                        }
-                        data.put(voteInfo.getCommentId(), inData);
+        if (null != issueObject && this.permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issueObject, loggedInUser)) {
+            this.ao.executeInTransaction(() -> {
+                VoteInfo[] votes = HandleComments.this.ao.find(VoteInfo.class, "ISSUE_ID = ?", issueid);
+                for (VoteInfo voteInfo : votes) {
+                    log.debug("Vote id - " + voteInfo.getID());
+                    VoteCommentsModel inData = new VoteCommentsModel(voteInfo.getCommentId(), 0, false, 0, false);
+                    if (data.containsKey(voteInfo.getCommentId())) {
+                        inData = data.get(voteInfo.getCommentId());
                     }
-                    return null;
+
+                    switch (voteInfo.getVoteCount()) {
+                        case -1:
+                            inData.setDownVotes(inData.getDownVotes() + 1);
+                            if (0 == userName.compareTo(voteInfo.getUserName().toLowerCase())) {
+                                inData.setUserDownVoted(true);
+                            }
+                            break;
+                        case 1:
+                            inData.setUpVotes(inData.getUpVotes() + 1);
+                            if (0 == userName.compareTo(voteInfo.getUserName().toLowerCase())) {
+                                inData.setUserUpVoted(true);
+                            }
+                            break;
+                        default:
+                            log.error("No way this can happen");
+                    }
+                    data.put(voteInfo.getCommentId(), inData);
                 }
+                return null;
             });
-        }
-        else
-        {
+        } else {
             log.warn("Get votes request ignored");
         }
         return Response.ok(data.values()).build();
     }
 
-    private String getUserName(ApplicationUser loggedInUser)
-    {
+    private String getUserName(ApplicationUser loggedInUser) {
         String derivedUserName;
-        if(null == loggedInUser)
-        {
+        if (null == loggedInUser) {
             log.debug("Anonymous user.");
             derivedUserName = "Anonymous-" + System.currentTimeMillis();
-        }
-        else
-        {
+        } else {
             derivedUserName = loggedInUser.getName().toLowerCase();
         }
         return derivedUserName;
@@ -220,7 +193,7 @@ public class HandleComments {
         if (null == issueid || null == commentid) {
             return Response.notModified("Required parameters missing").build();
         }
-        UpdateVote(1, commentid, issueid);
+        this.updateVote(1, commentid, issueid);
         return Response.ok(new VoteCommentsModel(commentid, 0, true, 0, false)).build();
     }
 
@@ -232,78 +205,74 @@ public class HandleComments {
         if (null == issueid || null == commentid) {
             return Response.notModified("Required parameters missing").build();
         }
-        UpdateVote(-1, commentid, issueid);
+        this.updateVote(-1, commentid, issueid);
         return Response.ok(new VoteCommentsModel(commentid, 0, false, 0, true)).build();
     }
 
-    private void UpdateVote(final Integer increment, final Long commentid, final Long issueid) {
-        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-        if(null == loggedInUser)
-        {
+    private void updateVote(final Integer increment, final Long commentid, final Long issueid) {
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        if (null == loggedInUser) {
             log.debug("Anonymous user.");
         }
 
-        final MutableIssue issueObject = issueManager.getIssueObject(issueid);
-        final Comment comment = commentManager.getCommentById(commentid);
-        final String userName = getUserName(loggedInUser);
+        final MutableIssue issueObject = this.issueManager.getIssueObject(issueid);
+        final Comment comment = this.commentManager.getCommentById(commentid);
+        final String userName = this.getUserName(loggedInUser);
 
 
         if (null != issueObject &&
-                permissionManager.hasPermission(Permissions.COMMENT_ISSUE, issueObject, loggedInUser) &&
+                this.permissionManager.hasPermission(ProjectPermissions.ADD_COMMENTS, issueObject, loggedInUser) &&
                 null != comment &&
                 (null == loggedInUser || !loggedInUser.equals(comment.getAuthorApplicationUser()))
                 ) {
 
-            ao.executeInTransaction(new TransactionCallback<Void>() {
-                @Override
-                public Void doInTransaction() {
-                    VoteInfo[] votes = ao.find(VoteInfo.class, "COMMENT_ID = ? AND USER_NAME = ? AND ISSUE_ID = ?",
-                            commentid, userName, issueid);
-                    switch (votes.length) {
-                        case 0:
-                            final VoteInfo voteInfo = ao.create(VoteInfo.class);
-                            voteInfo.setCommentId(commentid);
-                            voteInfo.setIssueId(issueid);
-                            voteInfo.setUserName(userName);
-                            voteInfo.setVoteCount(increment);
-                            voteInfo.save();
-                            break;
-                        case 1:
-                            log.debug("Existing vote found for this user, comment and issue");
-                            Integer vote = votes[0].getVoteCount();
-                            vote = vote + increment;
+            this.ao.executeInTransaction(() -> {
+                VoteInfo[] votes = HandleComments.this.ao.find(VoteInfo.class, "COMMENT_ID = ? AND USER_NAME = ? AND ISSUE_ID = ?",
+                        commentid, userName, issueid);
+                switch (votes.length) {
+                    case 0:
+                        final VoteInfo voteInfo = HandleComments.this.ao.create(VoteInfo.class);
+                        voteInfo.setCommentId(commentid);
+                        voteInfo.setIssueId(issueid);
+                        voteInfo.setUserName(userName);
+                        voteInfo.setVoteCount(increment);
+                        voteInfo.save();
+                        break;
+                    case 1:
+                        log.debug("Existing vote found for this user, comment and issue");
+                        Integer vote = votes[0].getVoteCount();
+                        vote = vote + increment;
                         /*
-                        * -1 + 1  = 0 = delete
-                        * 0  + 1  => This is not possible
-                        * 1  + 1  => 2 = 1
-                        * -1 + -1 => -2 = -1
-                        * 0  + -1 => This is not possible
-                        * 1  + -1 = 0 = delete
-                        * */
-                            switch (vote) {
-                                case 0:
-                                    ao.delete(votes[0]);
-                                    break;
-                                case 2:
-                                    vote = 1;
-                                    votes[0].setVoteCount(vote);
-                                    votes[0].save();
-                                    break;
-                                case -2:
-                                    vote = -1;
-                                    votes[0].setVoteCount(vote);
-                                    votes[0].save();
-                                    break;
-                                default:
-                                    log.warn("This case should never come for vote count");
-                                    break;
-                            }
-                            break;
-                        default:
-                            log.error("More that one vote found for the same comment from same user, this should never happen");
-                    }
-                    return null;
+                         * -1 + 1  = 0 = delete
+                         * 0  + 1  => This is not possible
+                         * 1  + 1  => 2 = 1
+                         * -1 + -1 => -2 = -1
+                         * 0  + -1 => This is not possible
+                         * 1  + -1 = 0 = delete
+                         * */
+                        switch (vote) {
+                            case 0:
+                                HandleComments.this.ao.delete(votes[0]);
+                                break;
+                            case 2:
+                                vote = 1;
+                                votes[0].setVoteCount(vote);
+                                votes[0].save();
+                                break;
+                            case -2:
+                                vote = -1;
+                                votes[0].setVoteCount(vote);
+                                votes[0].save();
+                                break;
+                            default:
+                                log.warn("This case should never come for vote count");
+                                break;
+                        }
+                        break;
+                    default:
+                        log.error("More that one vote found for the same comment from same user, this should never happen");
                 }
+                return null;
             });
         } else {
             log.warn("Update vote request ignored");
