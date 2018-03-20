@@ -154,7 +154,7 @@ var replyCommentAdd = function () {
 
 var cancelHandle = function (event) {
     event.preventDefault();
-    AJS.$(this).parent().parent().parent().toggle();
+    AJS.$(this).parent().parent().parent().parent().parent().parent().toggle();
     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
 };
 
