@@ -26,7 +26,7 @@ var doAll = function () {
     try {
         issueID = JIRA.Issue.getIssueId();
         issueKey = JIRA.Issue.getIssueKey();
-        loggedInUser = JIRA.Meta.getLoggedInUser().name;
+        loggedInUser = JIRA.Users.LoggedInUser.userName();
     }
     catch (err) {
         debug("Exception. Retrying...")
@@ -322,7 +322,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         '<div id="comment-wiki-edit" class="wiki-edit-content">' +
         '<textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised wiki-edit-wrapped" cols="60" id="comment" name="comment" wrap="virtual" data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" resolved="" style="overflow-y: auto; min-height: 174px; max-height: 629px;box-sizing:border-box;" />' +
         '<div class="rte-container">' +
-        '<rich-editor contenteditable="true"/>' +
+        '<rich-editor contenteditable="true"  data-issue-key="' + issueKey + '" data-content-present="true" resolved=""/>' +
         '</div>' +
         '</div>' +
         '</div> ' +
@@ -347,7 +347,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         '</ul>' +
         '</div>' +
         '</div>' +
-        '</div><br/>'));
+        '</div></div><br/>'));
 };
 
 var addVoteLinks = function (commentId) {
