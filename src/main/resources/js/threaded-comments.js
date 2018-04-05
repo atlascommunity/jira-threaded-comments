@@ -26,7 +26,7 @@ var doAll = function () {
     try {
         issueID = JIRA.Issue.getIssueId();
         issueKey = JIRA.Issue.getIssueKey();
-        loggedInUser = JIRA.Meta.getLoggedInUser().name;
+        loggedInUser = JIRA.Users.LoggedInUser.userName();
     }
     catch (err) {
         debug("Exception. Retrying...")
@@ -317,12 +317,12 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
 
     AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
         '<div class="field-group aui-field-wikiedit comment-input">' +
-        '<div class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer" issue-key="$issueKey" resolved="">' +
+        '<div class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer" issue-key="' + issueKey + '" resolved="">' +
         '<div class="wiki-edit">' +
         '<div id="comment-wiki-edit" class="wiki-edit-content">' +
-        '<textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised" cols="60" id="devCommentText" name="devCommentText" wrap="virtual" data-issuekey="$issueKey" resolved="" style="min-height: 174px; max-height: 540px;"/>' +
+        '<textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised wiki-edit-wrapped" cols="60" id="comment" name="comment" wrap="virtual" data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" resolved="" style="overflow-y: auto; min-height: 174px; max-height: 629px;box-sizing:border-box;" />' +
         '<div class="rte-container">' +
-        '<rich-editor contenteditable="true"/>' +
+        '<rich-editor contenteditable="true"  data-issue-key="' + issueKey + '" data-content-present="true" resolved=""/>' +
         '</div>' +
         '</div>' +
         '</div> ' +
@@ -347,7 +347,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         '</ul>' +
         '</div>' +
         '</div>' +
-        '</div><br/>'));
+        '</div></div><br/>'));
 };
 
 var addVoteLinks = function (commentId) {
