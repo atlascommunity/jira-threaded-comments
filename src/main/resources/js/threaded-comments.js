@@ -7,6 +7,14 @@ var parents = {};
 var commentData = {};
 //var lastUpdatedTime;
 var retries = 0;
+var BacklogSelectionController = {};
+
+try {
+    BacklogSelectionController = require('jira-agile/rapid/ui/plan/backlog-selection-controller');
+}
+catch (e) {
+
+}
 
 var tm = function () {
     var d = new Date();
@@ -53,7 +61,7 @@ var doAll = function () {
 //    lastUpdatedTime = tm();
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/mypermissions?issueId=" + issueID, function (data) {
-        if (data.permissions.COMMENT_ISSUE.havePermission) {
+        if (data.permissions.ADD_COMMENTS.havePermission) {
             AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
                 projectKey = data.fields.project.key;
                 debug("threaded comments context - " + issueKey + "," + issueID + "," + loggedInUser);
@@ -148,12 +156,22 @@ var replyCommentAdd = function () {
             currButton.removeAttr("disabled");
             currButton.parent().parent().find('.replycommentcancel').show();
             commentTextArea.removeAttr("disabled");
+
+            // close controls on rapidboards
+            currButton.parent().parent().parent().parent().parent().parent().toggle();
+            currButton.closest('.issue-data-block').find('.commentreply').show();
+            JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
+
+            if (BacklogSelectionController.updateUIAndState !== undefined && (typeof BacklogSelectionController.updateUIAndState === 'function')) {
+                BacklogSelectionController.updateUIAndState({openDetailsView: true, doScroll: false});
+            }
         }
     });
 };
 
 var cancelHandle = function (event) {
     event.preventDefault();
+
     AJS.$(this).parent().parent().parent().parent().parent().parent().toggle();
     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
 };
@@ -338,7 +356,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         '<span class="icon throbber"/>' +
         '<ul class="ops">' +
         '<li>' +
-        '<a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add</a>' +
+        '<input accesskey="s" data="' + commentId + '" class="aui-button aui-button-light replycommentbutton" id="issue-comment-add-submit" name="Add" title="Press Alt+s to submit this form" type="submit" value="Add">' +
         '<span class="icon throbber loading hiddenthrobber"/>' +
         '</li>' +
         '<li>' +
@@ -365,3 +383,11 @@ JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
     rearrangeComments();
     showCurrentVotes();
 });
+
+JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
+    debug("Issue was switched on board");
+    addCommentButtons();
+    rearrangeComments();
+    showCurrentVotes();
+});
+
