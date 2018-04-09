@@ -7,14 +7,6 @@ var parents = {};
 var commentData = {};
 //var lastUpdatedTime;
 var retries = 0;
-var BacklogSelectionController = {};
-
-try {
-    BacklogSelectionController = require('jira-agile/rapid/ui/plan/backlog-selection-controller');
-}
-catch (e) {
-
-}
 
 var tm = function () {
     var d = new Date();
@@ -160,10 +152,9 @@ var replyCommentAdd = function () {
             // close controls on rapidboards
             currButton.parent().parent().parent().parent().parent().parent().toggle();
             currButton.closest('.issue-data-block').find('.commentreply').show();
-            JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
 
-            if (BacklogSelectionController.updateUIAndState !== undefined && (typeof BacklogSelectionController.updateUIAndState === 'function')) {
-                BacklogSelectionController.updateUIAndState({openDetailsView: true, doScroll: false});
+            if (GH.DetailsView !== undefined) {
+                GH.DetailsView.load(null);
             }
         }
     });
@@ -385,9 +376,25 @@ JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
 });
 
 JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
-    debug("Issue was switched on board");
-    addCommentButtons();
-    rearrangeComments();
-    showCurrentVotes();
+
+    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+        debug("Issue was switched on board");
+        addCommentButtons();
+        rearrangeComments();
+        showCurrentVotes();
+    } else {
+        doAll();
+    }
+});
+
+JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, function (e, context, reason) {
+    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+        debug("Issue was switched on board");
+        addCommentButtons();
+        rearrangeComments();
+        showCurrentVotes();
+    } else {
+        doAll();
+    }
 });
 
