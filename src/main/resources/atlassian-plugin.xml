@@ -42,28 +42,28 @@
     </ao>
 
     <!-- add our web resources -->
-    <web-resource key="threaded-comments-admin-resources" name="xproduct-admin-ui-plugin Web Resources">
+    <web-resource key="threaded-comments-admin-resources" name="threaded-comments-admin-ui-plugin Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
 
         <resource type="download" name="threaded-comments-admin.css" location="/css/threaded-comments-admin.css"/>
         <resource type="download" name="threaded-comments-admin.js" location="/js/threaded-comments-admin.js"/>
         <resource type="download" name="images/" location="/images"/>
 
-        <context>xproduct-admin-ui-plugin</context>
+        <context>threaded-comments-admin-ui-plugin</context>
     </web-resource>
 
     <servlet key="admin-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.admin.AdminServlet">
-        <url-pattern>/xproduct/admin</url-pattern>
+        <url-pattern>/threaded-comments/admin</url-pattern>
     </servlet>
 
-    <rest key="rest" path="/xproduct-admin" version="1.0">
+    <rest key="rest" path="/threaded-comments-admin" version="1.0">
         <description>Provides REST resources for the admin UI.</description>
     </rest>
 
     <web-item key="jira-menu-item" name="threaded-comments Admin" section="system.admin/globalsettings" weight="10"
               application="jira">
-        <description>Link to xproduct-admin page.</description>
+        <description>Link to threaded-comments-admin page.</description>
         <label key="threaded-comments.admin.label"/>
-        <link linkId="threaded-comments-admin-link">/plugins/servlet/xproduct/admin</link>
+        <link linkId="threaded-comments-admin-link">/plugins/servlet/threaded-comments/admin</link>
     </web-item>
 </atlassian-plugin>
