@@ -1,0 +1,22 @@
+<html>
+<head>
+    <title>$i18n.getText("threaded-comments.admin.label")</title>
+    <meta name="decorator" content="atl.admin"/>
+    $webResourceManager.requireResource(
+        "info.renjithv.jira.addons.threadedcomments.threaded-comments:threaded-comments-admin-resources")
+</head>
+<body>
+<h1>$i18n.getText("threaded-comments.admin.settings.label")</h1>
+<form id="admin" class="aui">
+    <div class="field-group">
+        <div class="checkbox">
+            <label for="globalactive">$i18n.getText("threaded-comments.admin.globalenable.label")</label>
+            <input class="checkbox" type="checkbox" name="checkglobalactive" id="checkglobalactive"/>
+        </div>
+        <div class="group">
+            <input type="submit" value="$i18n.getText("threaded-comments.admin.save.label")" class="button">
+        </div>
+    </div>
+</form>
+</body>
+</html>
