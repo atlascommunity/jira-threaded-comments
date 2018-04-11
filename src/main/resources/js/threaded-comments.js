@@ -7,7 +7,7 @@ var parents = {};
 var commentData = {};
 //var lastUpdatedTime;
 var retries = 0;
-
+var intialized = false;
 var tm = function () {
     var d = new Date();
     return d.getMilliseconds();
@@ -38,6 +38,7 @@ var doAll = function () {
         retry();
         return;
     }
+
     debug("Got all values doAll");
 
 //    if(lastUpdatedTime)
@@ -61,12 +62,14 @@ var doAll = function () {
                 addCommentButtons();
                 rearrangeComments();
                 showCurrentVotes();
+                intialized = true;
             });
         }
         else {
             debug("Rearrange/show");
             rearrangeComments();
             showCurrentVotes();
+            intialized = true;
         }
     });
 }
@@ -367,15 +370,10 @@ var addVoteLinks = function (commentId) {
         '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
 };
 
-
-JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
-    debug("Page refreshed");
-    addCommentButtons();
-    rearrangeComments();
-    showCurrentVotes();
-});
-
 JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
+    if (!intialized) {
+        return;
+    }
 
     if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
         debug("Issue was switched on board");
@@ -383,17 +381,23 @@ JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
         rearrangeComments();
         showCurrentVotes();
     } else {
+        intialized = false;
         doAll();
     }
 });
 
 JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, function (e, context, reason) {
+    if (!intialized) {
+        return;
+    }
+
     if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
         debug("Issue was switched on board");
         addCommentButtons();
         rearrangeComments();
         showCurrentVotes();
     } else {
+        intialized = false;
         doAll();
     }
 });
