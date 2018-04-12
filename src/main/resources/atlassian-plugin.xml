@@ -8,6 +8,7 @@
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
         <param name="atlassian-data-center-compatible">true</param>
+        <param name="configure.url">/plugins/servlet/threaded-comments/admin</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
@@ -46,7 +47,7 @@
         <dependency>com.atlassian.auiplugin:ajs</dependency>
 
         <resource type="download" name="threaded-comments-admin.css" location="/css/threaded-comments-admin.css"/>
-        <resource type="download" name="threaded-comments-admin.js" location="/js/threaded-comments-admin.js"/>
+        <!-- <resource type="download" name="threaded-comments-admin.js" location="/js/threaded-comments-admin.js"/> -->
         <resource type="download" name="images/" location="/images"/>
 
         <context>threaded-comments-admin-ui-plugin</context>
@@ -56,9 +57,6 @@
         <url-pattern>/threaded-comments/admin</url-pattern>
     </servlet>
 
-    <rest key="rest" path="/threaded-comments-admin" version="1.0">
-        <description>Provides REST resources for the admin UI.</description>
-    </rest>
 
     <web-item key="jira-menu-item" name="threaded-comments Admin" section="system.admin/globalsettings" weight="10"
               application="jira">

@@ -2,19 +2,58 @@
 <head>
     <title>$i18n.getText("threaded-comments.admin.label")</title>
     <meta name="decorator" content="atl.admin"/>
+    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()"/>
     $webResourceManager.requireResource(
         "info.renjithv.jira.addons.threadedcomments.threaded-comments:threaded-comments-admin-resources")
+    $webResourceManager.requireResource("com.atlassian.auiplugin:aui-select2")
+    $webResourceManager.requireResource("com.atlassian.auiplugin:aui-forms")
 </head>
 <body>
 <h1>$i18n.getText("threaded-comments.admin.settings.label")</h1>
-<form id="admin" class="aui">
+<form id="admin" class="aui" enctype="multipart/form-data" method="post" action="">
     <div class="field-group">
-        <div class="checkbox">
-            <label for="globalactive">$i18n.getText("threaded-comments.admin.globalenable.label")</label>
-            <input class="checkbox" type="checkbox" name="checkglobalactive" id="checkglobalactive"/>
+        <fieldset class="group">
+            <label for="threadedEnabled">$i18n.getText("threaded-comments.admin.threaded.enabled.label")</label>
+            <input class="checkbox" type="checkbox" name="THREATEDCOMMENTS_ENABLED" id="threadedEnabled"
+                #if ($!THREATEDCOMMENTS_ENABLED == "true") checked="checked" #end
+                   onchange="if (document.getElementById('threadedEnabled').checked)
+                                 { document.getElementById('projectList').style.display= 'none';}
+                                 else
+                                    {document.getElementById('projectList').style.display= '';}
+                                    "/>
+        </fieldset>
+        <fieldset class="group">
+            <label for="voteEnabled">$i18n.getText("threaded-comments.admin.vote.enabled.label")</label>
+            <input class="checkbox" type="checkbox" name="COMMENTVOTE_ENABLED" id="voteEnabled"
+                #if ($!COMMENTVOTE_ENABLED == "true") checked="checked" #end />
+        </fieldset>
+
+
+        <div class="field-group" id="projectList"
+            #if ($!THREATEDCOMMENTS_ENABLED == "true") style="display:none;" #end
+        >
+
+            <select id="allProjects" name="THREATEDCOMMENTS_PROJECTS" multiple="">
+                #foreach ($project in $allProjects)
+                    <option value="$project.id"
+                        #if ($THREATEDCOMMENTS_PROJECTS.isEmpty() == false && $THREATEDCOMMENTS_PROJECTS.contains($project))
+                            selected="selected"
+                        #end title="$project.id">$project.name
+                    </option>
+                #end
+            </select>
+            <script>
+                AJS.$("#allProjects").auiSelect2();
+            </script>
         </div>
-        <div class="group">
-            <input type="submit" value="$i18n.getText("threaded-comments.admin.save.label")" class="button">
+
+
+        <div class="buttons-container">
+            <div class="buttons">
+                <button type="submit" name="action" value="save" class="button submit">
+                    $i18n.getText("threaded-comments.admin.save.label")
+                </button>
+            </div>
         </div>
     </div>
 </form>

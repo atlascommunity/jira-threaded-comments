@@ -1,0 +1,50 @@
+package info.renjithv.jira.addons.threadedcomments.rest.data;
+
+import com.atlassian.plugin.spring.scanner.annotation.component.JiraComponent;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.common.collect.Lists;
+
+import javax.inject.Inject;
+import java.util.List;
+
+@JiraComponent
+public class ThreadedCommentsConfiguration {
+
+    private static final String PLUGIN_STORAGE_KEY = "info.renjithv.jira.addons.threadedcomments.data";
+
+    private final PluginSettings settings;
+
+    @Inject
+    public ThreadedCommentsConfiguration(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
+        this.settings = pluginSettingsFactory.createSettingsForKey(PLUGIN_STORAGE_KEY);
+    }
+
+    public Boolean getThreadedCommentsEnabledGlobaly() {
+        String enabled = (String) this.settings.get("THREATEDCOMMENTS_ENABLED");
+        return enabled == null ? true : Boolean.valueOf(enabled);
+    }
+
+    public void setThreadedCommentsEnabledGlobaly(Boolean enabled) {
+        this.settings.put("THREATEDCOMMENTS_ENABLED", String.valueOf(enabled));
+    }
+
+    public List<String> getThreadedCommentsEnabledProjects() {
+        List<String> threadedCommentsEnabledProjects = (List) this.settings.get("THREATEDCOMMENTS_PROJECTS");
+        return threadedCommentsEnabledProjects != null ? threadedCommentsEnabledProjects : Lists.newArrayList();
+    }
+
+    public void setThreadedCommentsEnabledProjects(final List<String> threadedCommentsEnabledProjects) {
+        this.settings.put("THREATEDCOMMENTS_PROJECTS", threadedCommentsEnabledProjects);
+    }
+
+    public Boolean getVoteCommentsEnabledGlobaly() {
+        String enabled = (String) this.settings.get("COMMENTVOTE_ENABLED");
+        return enabled == null ? true : Boolean.valueOf(enabled);
+    }
+
+    public void setVoteCommentsEnabledGlobaly(Boolean enabled) {
+        this.settings.put("COMMENTVOTE_ENABLED", String.valueOf(enabled));
+    }
+}
