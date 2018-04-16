@@ -60,7 +60,7 @@ public class ThreadedCommentsServlet extends HttpServlet {
 
         if (!threadedCommentsEnabled) {
             Project pro = this.projectManager.getProjectObjByKey((String) data.get("projectKey"));
-            threadedCommentsEnabled = this.threadedCommentsConfiguration.getThreadedCommentsEnabledProjects().contains(String.valueOf( pro.getId()));
+            threadedCommentsEnabled = this.threadedCommentsConfiguration.getThreadedCommentsEnabledProjects().contains(String.valueOf(pro.getId()));
         }
 
         data.put(Constants.THREATEDCOMMENTS_ENABLED, threadedCommentsEnabled);

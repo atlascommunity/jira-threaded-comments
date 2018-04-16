@@ -156,7 +156,7 @@ var replyCommentAdd = function () {
             currButton.parent().parent().parent().parent().parent().parent().toggle();
             currButton.closest('.issue-data-block').find('.commentreply').show();
 
-            if (GH.DetailsView !== undefined) {
+            if (GH !== undefined && GH.DetailsView !== undefined) {
                 GH.DetailsView.load(null);
             }
         }
