@@ -325,41 +325,17 @@ var checkAndAddButtons = function () {
 
 var addCommentButtonsToBlock = function (commentId, commentBlock) {
     debug("addCommentButtonsToBlock called");
-    AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
-
-    AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
-        '<div class="field-group aui-field-wikiedit comment-input">' +
-        '<div class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer" issue-key="' + issueKey + '" resolved="">' +
-        '<div class="wiki-edit">' +
-        '<div id="comment-wiki-edit" class="wiki-edit-content">' +
-        '<textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised wiki-edit-wrapped" cols="60" id="comment" name="comment" wrap="virtual" data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" resolved="" style="overflow-y: auto; min-height: 174px; max-height: 629px;box-sizing:border-box;" />' +
-        '<div class="rte-container">' +
-        '<rich-editor contenteditable="true"  data-issue-key="' + issueKey + '" data-content-present="true" resolved=""/>' +
-        '</div>' +
-        '</div>' +
-        '</div> ' +
-        '<div class="field-tools"> ' +
-        '<button class="jira-icon-button fullscreen wiki-preview" id="comment-preview_link" type="button">' +
-        '</button> ' +
-        '</div>' +
-        '</div> ' +
-        '<div class="save-options wiki-button-bar">' +
-        '</div>' +
-        '<div class="buttons-container form-footer">' +
-        '<div class="buttons">' +
-        '<span class="icon throbber"/>' +
-        '<ul class="ops">' +
-        '<li>' +
-        '<input accesskey="s" data="' + commentId + '" class="aui-button aui-button-light replycommentbutton" id="issue-comment-add-submit" name="Add" title="Press Alt+s to submit this form" type="submit" value="Add">' +
-        '<span class="icon throbber loading hiddenthrobber"/>' +
-        '</li>' +
-        '<li>' +
-        '<a href="#" data="' + commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a>' +
-        '</li>' +
-        '</ul>' +
-        '</div>' +
-        '</div>' +
-        '</div></div><br/>'));
+    AJS.$.ajax({
+        async: false,
+        cache: false,
+        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
+        success: function (data) {
+            debug('Up voted');
+            var block = document.createElement("div");
+            block.innerHTML = data;
+            commentBlock.append(block);
+        }
+    });
 };
 
 var addVoteLinks = function (commentId) {
