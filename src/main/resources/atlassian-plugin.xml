@@ -23,6 +23,7 @@
         <resource type="download" name="images/" location="/images"/>
         <context>jira.view.issue</context>
         <context>jira.general</context>
+        <condition class="info.renjithv.jira.addons.threadedcomments.rest.condition.ThreadedCommentCondition"/>
     </web-resource>
 
     <!-- import from the product container -->

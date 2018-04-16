@@ -13,6 +13,7 @@ import java.util.List;
 public class ThreadedCommentsConfiguration {
 
     private static final String PLUGIN_STORAGE_KEY = "info.renjithv.jira.addons.threadedcomments.data";
+    public static final String COMMENTVOTE_ENABLED = "COMMENTVOTE_ENABLED";
 
     private final PluginSettings settings;
 
@@ -22,29 +23,38 @@ public class ThreadedCommentsConfiguration {
     }
 
     public Boolean getThreadedCommentsEnabledGlobaly() {
-        String enabled = (String) this.settings.get("THREATEDCOMMENTS_ENABLED");
+        String enabled = (String) this.settings.get(Constants.THREATEDCOMMENTS_ENABLED);
         return enabled == null ? true : Boolean.valueOf(enabled);
     }
 
     public void setThreadedCommentsEnabledGlobaly(Boolean enabled) {
-        this.settings.put("THREATEDCOMMENTS_ENABLED", String.valueOf(enabled));
+        this.settings.put(Constants.THREATEDCOMMENTS_ENABLED, String.valueOf(enabled));
     }
 
     public List<String> getThreadedCommentsEnabledProjects() {
-        List<String> threadedCommentsEnabledProjects = (List) this.settings.get("THREATEDCOMMENTS_PROJECTS");
+        List<String> threadedCommentsEnabledProjects = (List) this.settings.get(Constants.THREATEDCOMMENTS_PROJECTS);
         return threadedCommentsEnabledProjects != null ? threadedCommentsEnabledProjects : Lists.newArrayList();
     }
 
     public void setThreadedCommentsEnabledProjects(final List<String> threadedCommentsEnabledProjects) {
-        this.settings.put("THREATEDCOMMENTS_PROJECTS", threadedCommentsEnabledProjects);
+        this.settings.put(Constants.THREATEDCOMMENTS_PROJECTS, threadedCommentsEnabledProjects);
     }
 
     public Boolean getVoteCommentsEnabledGlobaly() {
-        String enabled = (String) this.settings.get("COMMENTVOTE_ENABLED");
+        String enabled = (String) this.settings.get(COMMENTVOTE_ENABLED);
         return enabled == null ? true : Boolean.valueOf(enabled);
     }
 
     public void setVoteCommentsEnabledGlobaly(Boolean enabled) {
-        this.settings.put("COMMENTVOTE_ENABLED", String.valueOf(enabled));
+        this.settings.put(COMMENTVOTE_ENABLED, String.valueOf(enabled));
+    }
+
+    public List<String> getVoteCommentsEnabledProjects() {
+        List<String> threadedCommentsEnabledProjects = (List) this.settings.get(Constants.COMMENTVOTE_PROJECTS);
+        return threadedCommentsEnabledProjects != null ? threadedCommentsEnabledProjects : Lists.newArrayList();
+    }
+
+    public void setVoteCommentsEnabledProjects(final List<String> threadedCommentsEnabledProjects) {
+        this.settings.put(Constants.COMMENTVOTE_PROJECTS, threadedCommentsEnabledProjects);
     }
 }

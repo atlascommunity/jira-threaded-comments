@@ -10,6 +10,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import info.renjithv.jira.addons.threadedcomments.rest.data.Constants;
 import info.renjithv.jira.addons.threadedcomments.rest.data.ThreadedCommentsConfiguration;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
@@ -30,6 +31,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AdminServlet extends HttpServlet {
+
+
     @ComponentImport
     private final UserManager userManager;
     @ComponentImport
@@ -106,32 +109,39 @@ public class AdminServlet extends HttpServlet {
     private void setAllFields(final List<FileItem> items) {
         Set<String> allFields = Sets.newHashSet();
         List<String> threadedCommentsEnabledProjects = Lists.newArrayList();
+        List<String> voteCommentsEnabledProjects = Lists.newArrayList();
 
         for (FileItem item : items) {
             final String fieldName = item.getFieldName();
             allFields.add(fieldName);
 
-            if ("THREATEDCOMMENTS_PROJECTS".equals(fieldName)) {
+            if (Constants.THREATEDCOMMENTS_PROJECTS.equals(fieldName)) {
                 threadedCommentsEnabledProjects.add(item.getString());
-            }
+            } else if (Constants.COMMENTVOTE_PROJECTS.equals(fieldName))
+                voteCommentsEnabledProjects.add(item.getString());
+
         }
 
         // checkboxes get submit on selected state only
-        this.threadedCommentsConfiguration.setThreadedCommentsEnabledGlobaly(allFields.contains("THREATEDCOMMENTS_ENABLED"));
-        this.threadedCommentsConfiguration.setVoteCommentsEnabledGlobaly(allFields.contains("COMMENTVOTE_ENABLED"));
+        this.threadedCommentsConfiguration.setThreadedCommentsEnabledGlobaly(allFields.contains(Constants.THREATEDCOMMENTS_ENABLED));
+        this.threadedCommentsConfiguration.setVoteCommentsEnabledGlobaly(allFields.contains(Constants.COMMENTVOTE_ENABLED));
 
         this.threadedCommentsConfiguration.setThreadedCommentsEnabledProjects(threadedCommentsEnabledProjects);
+        this.threadedCommentsConfiguration.setVoteCommentsEnabledProjects(voteCommentsEnabledProjects);
     }
 
     private Map<String, Object> configToMap(final ThreadedCommentsConfiguration config) {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("THREATEDCOMMENTS_ENABLED", config.getThreadedCommentsEnabledGlobaly());
-        map.put("COMMENTVOTE_ENABLED", config.getVoteCommentsEnabledGlobaly());
-        map.put("THREATEDCOMMENTS_PROJECTS", config.getThreadedCommentsEnabledProjects().stream()
+        map.put(Constants.THREATEDCOMMENTS_ENABLED, config.getThreadedCommentsEnabledGlobaly());
+        map.put(Constants.COMMENTVOTE_ENABLED, config.getVoteCommentsEnabledGlobaly());
+
+        map.put(Constants.THREATEDCOMMENTS_PROJECTS, config.getThreadedCommentsEnabledProjects().stream()
+                .map(Long::parseLong).map(this.projectManager::getProjectObj).collect(Collectors.toList()));
+        map.put(Constants.COMMENTVOTE_PROJECTS, config.getVoteCommentsEnabledProjects().stream()
                 .map(Long::parseLong).map(this.projectManager::getProjectObj).collect(Collectors.toList()));
 
-        map.put("allProjects", this.projectManager.getProjects());
+        map.put(Constants.ALL_PROJECTS, this.projectManager.getProjects());
         return map;
     }
 

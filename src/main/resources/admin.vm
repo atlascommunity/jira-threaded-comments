@@ -9,34 +9,31 @@
     $webResourceManager.requireResource("com.atlassian.auiplugin:aui-forms")
 </head>
 <body>
-<h1>$i18n.getText("threaded-comments.admin.settings.label")</h1>
+
 <form id="admin" class="aui" enctype="multipart/form-data" method="post" action="">
+    <h3>$i18n.getText("threaded-comments.admin.label")</h3>
     <div class="field-group">
+
         <fieldset class="group">
-            <label for="threadedEnabled">$i18n.getText("threaded-comments.admin.threaded.enabled.label")</label>
-            <input class="checkbox" type="checkbox" name="THREATEDCOMMENTS_ENABLED" id="threadedEnabled"
-                #if ($!THREATEDCOMMENTS_ENABLED == "true") checked="checked" #end
+            <label for="threadedEnabled">$i18n.getText("threaded-comments.admin.enabled.label")</label>
+            <input class="checkbox" type="checkbox" name="threadedEnabled" id="threadedEnabled"
+                #if ($!threadedEnabled == "true") checked="checked" #end
                    onchange="if (document.getElementById('threadedEnabled').checked)
                                  { document.getElementById('projectList').style.display= 'none';}
                                  else
                                     {document.getElementById('projectList').style.display= '';}
                                     "/>
         </fieldset>
-        <fieldset class="group">
-            <label for="voteEnabled">$i18n.getText("threaded-comments.admin.vote.enabled.label")</label>
-            <input class="checkbox" type="checkbox" name="COMMENTVOTE_ENABLED" id="voteEnabled"
-                #if ($!COMMENTVOTE_ENABLED == "true") checked="checked" #end />
-        </fieldset>
 
 
         <div class="field-group" id="projectList"
-            #if ($!THREATEDCOMMENTS_ENABLED == "true") style="display:none;" #end
+            #if ($!threadedEnabled == "true") style="display:none;" #end
         >
 
-            <select id="allProjects" name="THREATEDCOMMENTS_PROJECTS" multiple="">
+            <select id="allProjects" name="threadedProjects" multiple="">
                 #foreach ($project in $allProjects)
                     <option value="$project.id"
-                        #if ($THREATEDCOMMENTS_PROJECTS.isEmpty() == false && $THREATEDCOMMENTS_PROJECTS.contains($project))
+                        #if ($threadedProjects.isEmpty() == false && $threadedProjects.contains($project))
                             selected="selected"
                         #end title="$project.id">$project.name
                     </option>
@@ -44,6 +41,40 @@
             </select>
             <script>
                 AJS.$("#allProjects").auiSelect2();
+            </script>
+        </div>
+    </div>
+
+    <h3>$i18n.getText("comment-vote.admin.label")</h3>
+
+    <div class="field-group">
+        <fieldset class="group">
+            <label for="voteEnabled">$i18n.getText("comment-vote.admin.enabled.label")</label>
+            <input class="checkbox" type="checkbox" name="voteEnabled" id="voteEnabled"
+                #if ($!voteEnabled == "true") checked="checked" #end
+                   onchange="if (document.getElementById('voteEnabled').checked)
+                                 { document.getElementById('voteProjectList').style.display= 'none';}
+                                 else
+                                    {document.getElementById('voteProjectList').style.display= '';}
+                                    "/>
+        </fieldset>
+
+
+        <div class="field-group" id="voteProjectList"
+            #if ($!voteEnabled == "true") style="display:none;" #end
+        >
+            <label for="voteProjectSelect">$i18n.getText("comment-vote.admin.projects.label")</label>
+            <select id="voteProjectSelect" name="voteProjects" multiple="">
+                #foreach ($project in $allProjects)
+                    <option value="$project.id"
+                        #if ($voteProjects.isEmpty() == false && $voteProjects.contains($project))
+                            selected="selected"
+                        #end title="$project.id">$project.name
+                    </option>
+                #end
+            </select>
+            <script>
+                AJS.$("#voteProjectSelect").auiSelect2();
             </script>
         </div>
 
