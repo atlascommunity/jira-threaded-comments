@@ -1,0 +1,83 @@
+{namespace JIRA.Templates.Plugins.ThreadedComments}
+
+/**
+ * Threaded comment block
+ * @param issueKey
+ * @param projectKey
+ * @param commentId
+ * @param contextPath
+ */
+{template .threadedCommentBlock autoescape="false"}
+     <div class="threadedcomment">
+        <div class="commentreply">
+            <a>{getText('handle-comments.reply')}</a>
+        </div>
+        <div class="commentreplyarea">
+            <div class="commentarea">
+                <div>
+                    <textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised textcommentreply" cols="60" rows="10" wrap="virtual" data-projectkey="{$projectKey}" data-issuekey="{$issueKey}"></textarea>
+                </div>
+            </div>
+            <div class="textcommentpreview" style="display: none"></div>
+            <div class="threadedcommenttools">
+                {call .preview}
+                    {param enabled: false /}
+                {/call}
+                <a href="{$contextPath}/secure/WikiRendererHelpAction.jspa?section=texteffects" title="{getText('handle-comments.wiki.help')}" data-helplink="local">
+                    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>
+                </a>
+            </div>
+            <ul class="ops">
+                <li><a href="#" data="{$commentId}" class="aui-button replycommentbutton">{getText('common.words.add')}</a><span class="icon throbber loading hiddenthrobber"></span></li>
+                <li><a href="#" data="{$commentId}" class="aui-button aui-button-link cancel replycommentcancel">{getText('common.words.cancel')}</a></li>
+            </ul>
+        </div>
+     </div>
+{/template}
+
+/**
+ * Threaded comment block
+ * @param enabled
+ */
+{template .preview}
+    {if $enabled}
+        <a href="#" class="threadedcommenttoolspreview" title="{getText('handle-comments.backToEdit')}" data-enabled="{$enabled}">
+           <span class="aui-icon aui-icon-small aui-iconfont-file-txt"></span>
+        </a>
+    {else}
+        <a href="#" class="threadedcommenttoolspreview" title="{getText('handle-comments.preview')}" data-enabled="{$enabled}">
+           <span class="aui-icon aui-icon-small aui-iconfont-review"></span>
+        </a>
+    {/if}
+{/template}
+
+/**
+ * Vote comment block
+ * @param commentId
+ * @param contextPath
+ */
+{template .voteBlock}
+    <a class="upvote" commentid="{$commentId}" title="{getText('handle-comments.vote.up')}">
+       <img class="emoticon" src="{$contextPath}/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+    </a>
+    <a class="downvote" commentid="{$commentId}" title="{getText('handle-comments.vote.down')}">
+       <img class="emoticon" src="{$contextPath}/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+    </a>
+{/template}
+
+
+/**
+ * Likes view
+ * @param count
+ */
+{template .likesView}
+    <div class="description currentvotes likes">{$count}{sp}{if $count > 1}{getText('handle-comments.vote.likes')}{else}{getText('handle-comments.vote.like')}{/if}</div>
+{/template}
+
+/**
+ * Dislikes view
+ * @param count
+ */
+{template .dislikesView}
+    <div class="description currentvotes dislikes">{$count}{sp}{if $count > 1}{getText('handle-comments.vote.dislikes')}{else}{getText('handle-comments.vote.dislike')}{/if}</div>
+{/template}

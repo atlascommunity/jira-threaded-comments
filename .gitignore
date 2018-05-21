@@ -3,13 +3,3 @@
 target
 lib
 .DS_Store
-contractsclient/node_modules
-contractsclient/webpack-stats.json
-npm-debug.log
-contrgactsclient/src/negotiation/dist/
-*.hot-update.js
-*.hot-update.json
-*.css.map
-*.js.map
-*.bundle.css
-*.bundle.js

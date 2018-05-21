@@ -7,8 +7,47 @@
 
 .commentreplyarea {
     display: none;
-    padding-right: 15px;
+    margin-top: 10px;
 }
+
+.commentreplyarea textarea {
+    padding: 4px 12px;
+    margin: 0;
+    height: 200px;
+    width: 100%;
+    resize: vertical;
+    overflow-y: auto;
+    vertical-align: baseline;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    background: #ffffff;
+    color: #333333;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.textcommentpreview {
+    background-color: #E8F1FF;
+    padding: 0.3em 0.7em;
+}
+
+.commentreplyarea .threadedcommenttools {
+    margin: 5px 0 5px 0;
+}
+
+.commentreplyarea .threadedcommenttools > a {
+    color: #707070;
+}
+
+.commentreplyarea .threadedcommenttools > a:not(:last-child) {
+    margin-right: 5px;
+}
+
+.commentreplyarea .ops {
+    display: inline-block;
+}
+
 .textcommentreply {
     height: 45px;
     width: 100%;

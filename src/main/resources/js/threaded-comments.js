@@ -11,14 +11,14 @@ var retries = 0;
 var tm = function(){
     var d = new Date();
     return d.getMilliseconds();
-}
+};
 
 var retry = function() {
     if(retries < 60) {
         setTimeout(doAll, 1000);
     }
     retries++;
-}
+};
 
 var doAll = function(){
     debug("doAll called");
@@ -81,6 +81,8 @@ AJS.$('document').ready(function () {
     AJS.$(document).on("click", '.replycommentcancel', cancelHandle);
     AJS.$(document).on("click", '.upvote', upVote);
     AJS.$(document).on("click", '.downvote', downVote);
+    AJS.$(document).on("click", '.threadedcommenttoolspreview', previewComment);
+    AJS.$(document).on("keypress", '.textcommentreply', shortcutReply);
 
     JIRA.ViewIssueTabs.onTabReady(function (in1, in2, in3) {
         if("activitymodule" == in1.attr("id") || "activitymodule" == in1.parent().attr("id"))
@@ -117,7 +119,7 @@ var replyCommentAdd = function () {
         return;
     }
 
-    var commentTextArea = currButton.parent().parent().parent().children("textarea");
+    var commentTextArea = currButton.parents('.commentreplyarea').find('.commentarea textarea');
 
     var newComment = commentTextArea.val();
     debug("Reply invoked " + newComment);
@@ -158,8 +160,9 @@ var replyCommentAdd = function () {
 
 var cancelHandle = function (event) {
    event.preventDefault();
-   AJS.$(this).parent().parent().parent().toggle();
-   AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
+   var $threadedComment = AJS.$(event.currentTarget).parents('.threadedcomment');
+   $threadedComment.find('.commentreplyarea').hide();
+   $threadedComment.find('.commentreply').show();
 };
 
 var upVote = function (event) {
@@ -197,18 +200,11 @@ var addCurrentVoteBlock = function () {
 
         if (cmData && cmData.downvotes) {
             debug("Adding dislike block for comment - " + commentId);
-            var plu = cmData.downvotes > 1 ? 's':'';
-            AJS.$(this).before(
-            AJS.$('<div class="description currentvotes dislikes">' + cmData.downvotes + ' dislike' + plu + '</div>')
-            );
+            AJS.$(this).before(JIRA.Templates.Plugins.ThreadedComments.dislikesView({count: cmData.downvotes}));
         }
         if (cmData && cmData.upvotes) {
             debug("Adding like block for comment - " + commentId);
-
-            var plu = cmData.upvotes > 1 ? 's':'';
-            AJS.$(this).before(
-                AJS.$('<div class="description currentvotes likes">' + cmData.upvotes + ' like' + plu + '</div>')
-            );
+            AJS.$(this).before(JIRA.Templates.Plugins.ThreadedComments.likesView({count: cmData.upvotes}));
         }
     } );
 };
@@ -313,26 +309,63 @@ var checkAndAddButtons = function () {
     }
 };
 
+var previewComment = function(event) {
+    event.preventDefault();
+
+    var $preview = AJS.$(event.currentTarget);
+    var enabled = $preview.data('enabled');
+    var $commentreplyarea = $preview.parents('.commentreplyarea');
+    var $textarea = $commentreplyarea.find('textarea');
+    if (!enabled) {
+        var data = {
+            issueKey: $textarea.data('issuekey'),
+            rendererType: "atlassian-wiki-renderer",
+            unrenderedMarkup: $textarea.val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: AJS.contextPath() + '/rest/api/1.0/render',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(result) {
+                $commentreplyarea.find('.commentarea').hide();
+                $commentreplyarea.find('.textcommentpreview').append(result).show();
+                $preview.replaceWith(JIRA.Templates.Plugins.ThreadedComments.preview({enabled: !enabled}));
+            },
+            error: function(request) {
+                alert(request.responseText);
+            }
+        });
+    } else {
+        $commentreplyarea.find('.commentarea').show();
+        $commentreplyarea.find('.textcommentpreview').empty().hide();
+        $preview.replaceWith(JIRA.Templates.Plugins.ThreadedComments.preview({enabled: !enabled}));
+    }
+};
+
+var shortcutReply = function(event) {
+    if (event.ctrlKey && event.keyCode == 13) {
+        AJS.$(event.currentTarget).parents('.commentreplyarea').find('.replycommentbutton').click();
+    } else
+        return true;
+};
+
 var addCommentButtonsToBlock = function (commentId, commentBlock) {
     debug("addCommentButtonsToBlock called");
-    AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
-
-    AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
-        '<textarea class="textcommentreply textarea long-field mentionable" cols="60" rows="10" wrap="virtual" ' +
-        'data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" style="overflow-y: auto; height: 200px;"></textarea>' +
-        '<ul class="ops">' +
-        '<li><a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add</a><span class="icon throbber loading hiddenthrobber"></span></li>' +
-        '<li><a href="#" data="' + commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a></li>' +
-        '</ul>' +
-        '</div><br/>'));
+    AJS.$(commentBlock).append(JIRA.Templates.Plugins.ThreadedComments.threadedCommentBlock({
+        issueKey: issueKey,
+        projectKey: projectKey,
+        commentId: commentId,
+        contextPath: AJS.contextPath()
+    }));
 };
 
 var addVoteLinks = function (commentId) {
     debug("addVoteLinks called");
-   AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
-       '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
-       '<a class="downvote" commentid=' + commentId + ' title="Down votes this comment">' +
-       '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
+    AJS.$(this).append(JIRA.Templates.Plugins.ThreadedComments.voteBlock({
+        commentId: commentId,
+        contextPath: AJS.contextPath()
+    }));
 };
 
 
