@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.25-SNAPSHOT</version>
+    <version>1.26-SNAPSHOT</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
