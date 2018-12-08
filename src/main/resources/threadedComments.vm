@@ -1,9 +1,12 @@
 #if ($!threadedEnabled == "true")
+$!webResourceManager.requireResource("com.atlassian.jira.plugins.jira-editor-plugin:init")
 <div>
     <a class="commentreply" href="#">Reply</a>
     <div class="commentreplyarea">
+        <div class="field-group">
+        <!--
         <div class="field-group aui-field-wikiedit comment-input">
-            <div class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer"
+            <div id="$commentId" class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer"
                  issue-key="$issueKey" resolved="">
                 <div class="wiki-edit">
                     <div id="comment-wiki-edit" class="wiki-edit-content">
@@ -18,31 +21,47 @@
                         </div>
                     </div>
                 </div>
-
+                -->
+#disable_html_escaping()
+$!rendererParams.put("rows", "5")
+$!rendererParams.put("cols", "35")
+$!rendererParams.put("wrap", "virtual")
+$rendererDescriptor.getEditVM("", $issueKey, "atlassian-wiki-renderer", "responsible", "responsible", $rendererParams, false)
+             
+        <!--
                 <div class="field-tools">
                     <button class="jira-icon-button fullscreen wiki-preview" id="comment-preview_link" type="button">
                     </button>
                 </div>
+                -->
+                
+                            <input accesskey="s" data="$commentId"
+                                   class="aui-button aui-button-primary replycommentbutton" id="issue-comment-add-submit"
+                                   name="Add" title="Press Alt+s to submit this form" type="submit" value="Add">
+                            <span class="icon throbber loading hiddenthrobber" ></span>
+                                  <a href="#" data="$commentId" class="aui-button cancel replycommentcancel">Cancel</a>
+                  <!--    
             </div>
-
             <div class="save-options wiki-button-bar">
-            </div>
+            </div>            
             <div class="buttons-container form-footer">
                 <div class="buttons">
                     <span class="icon throbber"/>
                     <ul class="ops">
                         <li>
-                            <input accesskey="s" data="$commentId"
+                        <input accesskey="s" data="$commentId"
                                    class="aui-button aui-button-light replycommentbutton" id="issue-comment-add-submit"
                                    name="Add" title="Press Alt+s to submit this form" type="submit" value="Add">
-                            <span class="icon throbber loading hiddenthrobber"/>
+                            <span class="icon throbber loading hiddenthrobber" />
+                           
                         </li>
                         <li>
                             <a href="#" data="$commentId" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a>
                         </li>
                     </ul>
-                </div>
+                </div>                
             </div>
+            -->
         </div>
     </div>
     <br/>

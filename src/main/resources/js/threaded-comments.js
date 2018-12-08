@@ -99,9 +99,15 @@ var debug = function (msg) {
 
 var replyClick = function (event) {
     event.preventDefault();
+    // close other open inputs
     AJS.$('.commentreplyarea').hide();
     AJS.$('.commentreply').show();
-    AJS.$(this).next().toggle();
+
+    // show current selected inputs
+    AJS.$(this).next().show();
+    AJS.$(this).next().find('.replycommentbutton').removeClass('hiddenthrobber');
+    AJS.$(this).next().find('.replycommentbutton').show();
+    AJS.$(this).next().find('.replycommentcancel').removeClass('hiddenthrobber');
     AJS.$(this).next().find("textarea").focus();
 
     AJS.$(this).hide();
@@ -346,35 +352,39 @@ var addVoteLinks = function (commentId) {
         '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
 };
 
-JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
-    if (!intialized) {
-        return;
-    }
 
-    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
-        debug("Issue was switched on board");
-        addCommentButtons();
-        rearrangeComments();
-        showCurrentVotes();
-    } else {
-        intialized = false;
-        doAll();
+jQuery(document).ready(function() {
+    JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
+        if (!intialized) {
+            return;
+        }
+
+        if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+            debug("Issue was switched on board");
+            addCommentButtons();
+            rearrangeComments();
+            showCurrentVotes();
+        } else {
+            intialized = false;
+            doAll();
+        }
+    });
+    
+    if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {
+        JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, function (e, context, reason) {
+            if (!intialized) {
+                return;
+            }
+
+            if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+                debug("Issue was switched on board");
+                addCommentButtons();
+                rearrangeComments();
+                showCurrentVotes();
+            } else {
+                intialized = false;
+                doAll();
+            }
+        });
     }
 });
-
-JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, function (e, context, reason) {
-    if (!intialized) {
-        return;
-    }
-
-    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
-        debug("Issue was switched on board");
-        addCommentButtons();
-        rearrangeComments();
-        showCurrentVotes();
-    } else {
-        intialized = false;
-        doAll();
-    }
-});
-
