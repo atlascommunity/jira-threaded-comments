@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
@@ -15,8 +16,8 @@
         <connection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
-      <tag>threaded-comments-1.24</tag>
-  </scm>
+        <tag>threaded-comments-1.24</tag>
+    </scm>
 
     <pluginRepositories>
         <pluginRepository>
@@ -153,6 +154,11 @@
             <groupId>com.atlassian.plugins.rest</groupId>
             <artifactId>atlassian-rest-common</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3.3</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
