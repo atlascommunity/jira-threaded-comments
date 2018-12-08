@@ -42,9 +42,12 @@
         <entity>info.renjithv.jira.addons.threadedcomments.rest.CommentInfo</entity>
     </ao>
 
-    <servlet key="helper-servlet"
-             class="info.renjithv.jira.addons.threadedcomments.rest.comments.ThreadedCommentsServlet">
+    <servlet key="helper-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.comments.ThreadedCommentsServlet">
         <url-pattern>/threaded-comments/helper</url-pattern>
+    </servlet>
+	
+	<servlet key="votes-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.commentvotes.CommentvotesServlet">
+        <url-pattern>/threaded-comments/votes</url-pattern>
     </servlet>
 
     <!-- add our web resources -->

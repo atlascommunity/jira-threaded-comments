@@ -330,26 +330,35 @@ var checkAndAddButtons = function () {
 };
 
 var addCommentButtonsToBlock = function (commentId, commentBlock) {
-    debug("addCommentButtonsToBlock called");
+    debug("addCommentButtonsToBlock called");    
     AJS.$.ajax({
         async: false,
         cache: false,
         url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
         success: function (data) {
-            debug('Up voted');
             var block = document.createElement("div");
             block.innerHTML = data;
             commentBlock.append(block);
+            debug('Replay block added.');
         }
     });
 };
 
 var addVoteLinks = function (commentId) {
     debug("addVoteLinks called");
-    AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
-        '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
-        '<a class="downvote" commentid=' + commentId + ' title="Down votes this comment">' +
-        '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
+    var actionBlock=AJS.$(this);
+    AJS.$.ajax({
+        async: false,
+        cache: false,
+        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/votes?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
+        success: function (data) {            
+            //var block = document.createElement("div");
+            //block.innerHTML = data;
+            //actionBlock.append(block);
+            actionBlock[0].insertAdjacentHTML("beforeend",data);
+            debug('Up votLinks added');
+        }
+    });
 };
 
 
