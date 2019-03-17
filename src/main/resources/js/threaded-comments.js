@@ -361,39 +361,30 @@ var addVoteLinks = function (commentId) {
     });
 };
 
+var handleIssueUpdated = function (e, context, reason) {
+    if (!intialized) {
+        return;
+    }
+
+    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+        debug("Issue was switched on board");
+        addCommentButtons();
+        rearrangeComments();
+        showCurrentVotes();
+    } else {
+        intialized = false;
+        doAll();
+    }
+};
 
 jQuery(document).ready(function() {
-    JIRA.bind(JIRA.Events.ISSUE_REFRESHED, function (e, context, reason) {
-        if (!intialized) {
-            return;
-        }
-
-        if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
-            debug("Issue was switched on board");
-            addCommentButtons();
-            rearrangeComments();
-            showCurrentVotes();
-        } else {
-            intialized = false;
-            doAll();
-        }
-    });
+    JIRA.bind(JIRA.Events.ISSUE_REFRESHED, handleIssueUpdated);
+    JIRA.bind(JIRA.Events.UNLOCK_PANEL_REFRESHING, handleIssueUpdated);
     
-    if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {
-        JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, function (e, context, reason) {
-            if (!intialized) {
-                return;
-            }
-
-            if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
-                debug("Issue was switched on board");
-                addCommentButtons();
-                rearrangeComments();
-                showCurrentVotes();
-            } else {
-                intialized = false;
-                doAll();
-            }
-        });
+    if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {        
+        JIRA.bind('issueUpdated', handleIssueUpdated);
+        JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, handleIssueUpdated);
     }
+
+    
 });

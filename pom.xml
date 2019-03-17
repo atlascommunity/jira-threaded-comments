@@ -195,13 +195,13 @@
             <!-- start with "atlas-debug -\-product jira -\-version 7.8.1" to debug javascript -->
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-jira-plugin</artifactId>
+                <artifactId>jira-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <productVersion>${jira.version}</productVersion>
                     <productDataVersion>${jira.version}</productDataVersion>
-                    <jvmArgs>-Xms2G -Xmx6G</jvmArgs>
+                    <jvmArgs>-Xms6G -Xmx6G -XX:MaxPermSize=1g -XX:-UseGCOverheadLimit -server</jvmArgs>
                     <!-- Uncomment to install TestKit backdoor in JIRA. -->
                     <!--
                     <pluginArtifacts>
@@ -212,12 +212,18 @@
                         </pluginArtifact>
                     </pluginArtifacts>
                     -->
-                    <enableQuickReload>true</enableQuickReload>
-                    <enableFastdev>false</enableFastdev>
-                    <allowGoogleTracking>false</allowGoogleTracking>
+                    <enableQuickReload>true</enableQuickReload>                    
                     <compressJs>false</compressJs>
                     <compressCss>false</compressCss>
                     <compressResources>false</compressResources>
+
+                    <!-- make AMPS faster -->
+                    <enableDevToolbox>false</enableDevToolbox>
+                    <enablePde>false</enablePde>
+                    <skipRestDocGeneration>true</skipRestDocGeneration>
+                    <allowGoogleTracking>false</allowGoogleTracking>
+                    <skipManifestValidation>true</skipManifestValidation>
+                    <extractDependencies>false</extractDependencies>
 
 
                     <pluginArtifacts>
@@ -276,13 +282,13 @@
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jira.version>7.12.0</jira.version>
-        <amps.version>6.3.21</amps.version>
-        <plugin.testrunner.version>2.0.0</plugin.testrunner.version>
+        <jira.version>8.0.1</jira.version>
+        <amps.version>8.0.0</amps.version>
+        <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
         <ao.version>0.19.7</ao.version>
         <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
         <testkit.version>5.2.26</testkit.version>
         <local.maven.repository>file://localrepo</local.maven.repository>
-        <quick.reload.version>2.0.0</quick.reload.version>
+        <quick.reload.version>3.0.0</quick.reload.version>
     </properties>
 </project>
