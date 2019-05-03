@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.27-SNAPSHOT</version>
+    <version>1.27.1-SNAPSHOT</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
@@ -212,7 +212,7 @@
                         </pluginArtifact>
                     </pluginArtifacts>
                     -->
-                    <enableQuickReload>true</enableQuickReload>                    
+                    <enableQuickReload>true</enableQuickReload>
                     <compressJs>false</compressJs>
                     <compressCss>false</compressCss>
                     <compressResources>false</compressResources>

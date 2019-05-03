@@ -11,4 +11,4 @@ Note the following:
 Please be patient for the addon updates for major JIRA releases.
 Please avoid writing bad reviews instead of raising a bug report
 
-Compatibility: Jira 7.3.0 - 7.13
+Compatibility: Jira 7.3.0 - 8.1.x

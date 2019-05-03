@@ -51,9 +51,6 @@ public class ThreadedCommentsServlet extends HttpServlet
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
     {
-
-        //  AJS.$(this).attr('commentid') + '&issueid=' + issueID + '&issueKey=' + projectKey
-
         Map<String, Object> data = Maps.newHashMap();
 
         for (Map.Entry<String, String[]> o : request.getParameterMap().entrySet())
