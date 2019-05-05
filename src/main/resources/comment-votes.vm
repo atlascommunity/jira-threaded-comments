@@ -1,0 +1,8 @@
+#if ($!voteEnabled == "true")
+    <a class="upvote" commentid="$commentId" title="Up votes this comment">
+        <img class="emoticon" src="$req.getContextPath()/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+    </a>
+    <a class="downvote" commentid="$commentId" title="Down votes this comment">
+        <img class="emoticon" src="$req.getContextPath()/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+    </a>
+#end
