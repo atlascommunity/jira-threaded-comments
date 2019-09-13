@@ -17,6 +17,7 @@
     <!-- add our web resources -->
     <web-resource key="threaded-comments-resources" name="threaded-comments Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-flag</dependency>
         <dependency>jira.webresources:viewissue</dependency>
         <resource type="download" name="threaded-comments.css" location="/css/threaded-comments.css"/>
         <resource type="download" name="threaded-comments.js" location="/js/threaded-comments.js"/>
