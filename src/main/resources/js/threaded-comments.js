@@ -89,8 +89,6 @@ AJS.$('document').ready(function () {
             doAll();
         }
     });
-
-    doAll();
 });
 
 var debug = function (msg) {
@@ -336,6 +334,9 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         cache: false,
         url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
         success: function (data) {
+            if (AJS.$(commentBlock).find('.commentreply').length !== 0) {
+              return;
+            }
             var block = document.createElement("div");
             block.innerHTML = data;
             commentBlock.append(block);
