@@ -51,7 +51,7 @@ public class HandleComments {
     @Path("commentdata")
     public Response commentData(@QueryParam("issueid") final Long issueid) {
         if (null == issueid) {
-            return Response.notModified("Issue Id missing").build();
+            return badRequest("Issue Id missing");
         } else {
             log.debug("Issueid - " + issueid);
         }
@@ -87,10 +87,10 @@ public class HandleComments {
         if (null == comment || (null == comment.getIssueId()) ||
                 (null == comment.getParentCommentId()) ||
                 (null == comment.getCommentBody())) {
-            return Response.notModified("Required parameters missing").build();
+            return badRequest("Required parameters missing");
         }
         if (null == commentObj) {
-            return Response.notModified("Wrong comment id").build();
+            return badRequest("Wrong comment id");
         }
 
         final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
@@ -128,7 +128,7 @@ public class HandleComments {
     @Path("commentsvotes")
     public Response getIssueCommentsVotes(@QueryParam("issueid") final Long issueid) {
         if (null == issueid) {
-            return Response.notModified("Issue Id missing").build();
+            return badRequest("Issue Id missing");
         } else {
             log.debug("Issueid - " + issueid);
         }
@@ -191,7 +191,7 @@ public class HandleComments {
     @Path("upvote")
     public Response upvoteComment(@QueryParam("commentid") final Long commentid, @QueryParam("issueid") final Long issueid) {
         if (null == issueid || null == commentid) {
-            return Response.notModified("Required parameters missing").build();
+            return badRequest("Required parameters missing");
         }
         this.updateVote(1, commentid, issueid);
         return Response.ok(new VoteCommentsModel(commentid, 0, true, 0, false)).build();
@@ -203,7 +203,7 @@ public class HandleComments {
     @Path("downvote")
     public Response downvoteComment(@QueryParam("commentid") Long commentid, @QueryParam("issueid") final Long issueid) {
         if (null == issueid || null == commentid) {
-            return Response.notModified("Required parameters missing").build();
+            return badRequest("Required parameters missing");
         }
         this.updateVote(-1, commentid, issueid);
         return Response.ok(new VoteCommentsModel(commentid, 0, false, 0, true)).build();
@@ -277,5 +277,9 @@ public class HandleComments {
         } else {
             log.warn("Update vote request ignored");
         }
+    }
+
+    private Response badRequest(String message) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
     }
 }
