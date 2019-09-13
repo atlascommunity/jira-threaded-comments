@@ -340,7 +340,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
             var block = document.createElement("div");
             block.innerHTML = data;
             commentBlock.append(block);
-            debug('Replay block added.');
+            debug('Reply block added.');
         }
     });
 };
