@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.27.3</version>
+    <version>1.27.4-SNAPSHOT</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
@@ -15,7 +15,7 @@
         <connection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/vrenjith/jira-threaded-comments.git</developerConnection>
         <url>https://bitbucket.org/vrenjith/jira-threaded-comments</url>
-        <tag>threaded-comments-1.27.3</tag>
+        <tag>threaded-comments-1.24</tag>
     </scm>
 
     <pluginRepositories>
