@@ -258,7 +258,8 @@ var showCurrentVotes = function () {
 
 var moveComment = function () {
     debug("moveComment called");
-    var commentId = AJS.$(this).attr('id').split('-')[1];
+    var commentElement = AJS.$(this);
+    var commentId = commentElement.attr('id').split('-')[1];
 
     var parent = parents[commentId];
     debug("Rearranging comment - " + commentId);
@@ -266,8 +267,10 @@ var moveComment = function () {
         var parentId = '#comment-' + parent;
         if (AJS.$(parentId).length != 0) {
             debug("found parent in dom");
-            AJS.$(this).addClass('movedcomment');
-            AJS.$(this).appendTo(parentId);
+            if (!commentElement.hasClass('movedcomment')) {
+                commentElement.addClass('movedcomment');
+                commentElement.appendTo(parentId);
+            }
         }
     }
     else {
