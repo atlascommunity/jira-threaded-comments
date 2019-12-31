@@ -89,8 +89,6 @@ AJS.$('document').ready(function () {
             doAll();
         }
     });
-
-    doAll();
 });
 
 var debug = function (msg) {
@@ -151,16 +149,22 @@ var replyCommentAdd = function () {
         success: function (data) {
             console.log("New comment added :" + data);
             JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
+
+            // close controls on rapidboards
+            currButton.parent().parent().parent().parent().parent().parent().toggle();
+            currButton.closest('.issue-data-block').find('.commentreply').show();
+        },
+        error: function(xhr) {
+            AJS.flag({
+              type: 'error',
+              body: 'Comment creation failed (Status ' + xhr.status + ')',
+            });
         },
         complete: function (data) {
             currButton.parent().find('.throbber').addClass('hiddenthrobber');
             currButton.removeAttr("disabled");
             currButton.parent().parent().find('.replycommentcancel').show();
             commentTextArea.removeAttr("disabled");
-
-            // close controls on rapidboards
-            currButton.parent().parent().parent().parent().parent().parent().toggle();
-            currButton.closest('.issue-data-block').find('.commentreply').show();
 
             if (GH !== undefined && GH.DetailsView !== undefined) {
                 GH.DetailsView.load(null);
@@ -172,7 +176,7 @@ var replyCommentAdd = function () {
 var cancelHandle = function (event) {
     event.preventDefault();
 
-    AJS.$(this).parent().parent().parent().parent().parent().parent().toggle();
+    AJS.$(this).closest(".commentreplyarea").hide();
     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
 };
 
@@ -254,7 +258,8 @@ var showCurrentVotes = function () {
 
 var moveComment = function () {
     debug("moveComment called");
-    var commentId = AJS.$(this).attr('id').split('-')[1];
+    var commentElement = AJS.$(this);
+    var commentId = commentElement.attr('id').split('-')[1];
 
     var parent = parents[commentId];
     debug("Rearranging comment - " + commentId);
@@ -262,8 +267,10 @@ var moveComment = function () {
         var parentId = '#comment-' + parent;
         if (AJS.$(parentId).length != 0) {
             debug("found parent in dom");
-            AJS.$(this).addClass('movedcomment');
-            AJS.$(this).appendTo(parentId);
+            if (!commentElement.hasClass('movedcomment')) {
+                commentElement.addClass('movedcomment');
+                commentElement.appendTo(parentId);
+            }
         }
     }
     else {
@@ -336,10 +343,13 @@ var addCommentButtonsToBlock = function (commentId, commentBlock) {
         cache: false,
         url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
         success: function (data) {
+            if (AJS.$(commentBlock).find('.commentreply').length !== 0) {
+              return;
+            }
             var block = document.createElement("div");
             block.innerHTML = data;
             commentBlock.append(block);
-            debug('Replay block added.');
+            debug('Reply block added.');
         }
     });
 };
