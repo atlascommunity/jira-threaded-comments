@@ -13,6 +13,7 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Maps;
 import info.renjithv.jira.addons.threadedcomments.rest.data.Constants;
 import info.renjithv.jira.addons.threadedcomments.rest.data.ThreadedCommentsConfiguration;
+import org.apache.commons.text.StringEscapeUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServlet;
@@ -55,7 +56,7 @@ public class ThreadedCommentsServlet extends HttpServlet
 
         for (Map.Entry<String, String[]> o : request.getParameterMap().entrySet())
         {
-            data.put(o.getKey(), o.getValue()[0]);
+            data.put(o.getKey(), StringEscapeUtils.escapeHtml4(o.getValue()[0]));
         }
 
         Boolean threadedCommentsEnabled = this.threadedCommentsConfiguration.getThreadedCommentsEnabledGlobaly();
