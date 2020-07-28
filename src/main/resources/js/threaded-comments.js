@@ -7,7 +7,7 @@ var parents = {};
 var commentData = {};
 //var lastUpdatedTime;
 var retries = 0;
-
+var intialized = false;
 var tm = function () {
     var d = new Date();
     return d.getMilliseconds();
@@ -38,6 +38,7 @@ var doAll = function () {
         retry();
         return;
     }
+
     debug("Got all values doAll");
 
 //    if(lastUpdatedTime)
@@ -53,7 +54,7 @@ var doAll = function () {
 //    lastUpdatedTime = tm();
 
     AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/mypermissions?issueId=" + issueID, function (data) {
-        if (data.permissions.COMMENT_ISSUE.havePermission) {
+        if (data.permissions.ADD_COMMENTS.havePermission) {
             AJS.$.getJSON(AJS.contextPath() + "/rest/api/latest/issue/" + issueKey, function (data) {
                 projectKey = data.fields.project.key;
                 debug("threaded comments context - " + issueKey + "," + issueID + "," + loggedInUser);
@@ -61,12 +62,14 @@ var doAll = function () {
                 addCommentButtons();
                 rearrangeComments();
                 showCurrentVotes();
+                intialized = true;
             });
         }
         else {
             debug("Rearrange/show");
             rearrangeComments();
             showCurrentVotes();
+            intialized = true;
         }
     });
 }
@@ -86,8 +89,6 @@ AJS.$('document').ready(function () {
             doAll();
         }
     });
-
-    doAll();
 });
 
 var debug = function (msg) {
@@ -96,9 +97,15 @@ var debug = function (msg) {
 
 var replyClick = function (event) {
     event.preventDefault();
+    // close other open inputs
     AJS.$('.commentreplyarea').hide();
     AJS.$('.commentreply').show();
-    AJS.$(this).next().toggle();
+
+    // show current selected inputs
+    AJS.$(this).next().show();
+    AJS.$(this).next().find('.replycommentbutton').removeClass('hiddenthrobber');
+    AJS.$(this).next().find('.replycommentbutton').show();
+    AJS.$(this).next().find('.replycommentcancel').removeClass('hiddenthrobber');
     AJS.$(this).next().find("textarea").focus();
 
     AJS.$(this).hide();
@@ -142,19 +149,34 @@ var replyCommentAdd = function () {
         success: function (data) {
             console.log("New comment added :" + data);
             JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
+
+            // close controls on rapidboards
+            currButton.parent().parent().parent().parent().parent().parent().toggle();
+            currButton.closest('.issue-data-block').find('.commentreply').show();
+        },
+        error: function(xhr) {
+            AJS.flag({
+              type: 'error',
+              body: 'Comment creation failed (Status ' + xhr.status + ')',
+            });
         },
         complete: function (data) {
             currButton.parent().find('.throbber').addClass('hiddenthrobber');
             currButton.removeAttr("disabled");
             currButton.parent().parent().find('.replycommentcancel').show();
             commentTextArea.removeAttr("disabled");
+
+            if (GH !== undefined && GH.DetailsView !== undefined) {
+                GH.DetailsView.load(null);
+            }
         }
     });
 };
 
 var cancelHandle = function (event) {
     event.preventDefault();
-    AJS.$(this).parent().parent().parent().parent().parent().parent().toggle();
+
+    AJS.$(this).closest(".commentreplyarea").hide();
     AJS.$(this).closest('.issue-data-block').find('.commentreply').show();
 };
 
@@ -236,7 +258,8 @@ var showCurrentVotes = function () {
 
 var moveComment = function () {
     debug("moveComment called");
-    var commentId = AJS.$(this).attr('id').split('-')[1];
+    var commentElement = AJS.$(this);
+    var commentId = commentElement.attr('id').split('-')[1];
 
     var parent = parents[commentId];
     debug("Rearranging comment - " + commentId);
@@ -244,8 +267,10 @@ var moveComment = function () {
         var parentId = '#comment-' + parent;
         if (AJS.$(parentId).length != 0) {
             debug("found parent in dom");
-            AJS.$(this).addClass('movedcomment');
-            AJS.$(this).appendTo(parentId);
+            if (!commentElement.hasClass('movedcomment')) {
+                commentElement.addClass('movedcomment');
+                commentElement.appendTo(parentId);
+            }
         }
     }
     else {
@@ -312,56 +337,64 @@ var checkAndAddButtons = function () {
 };
 
 var addCommentButtonsToBlock = function (commentId, commentBlock) {
-    debug("addCommentButtonsToBlock called");
-    AJS.$(commentBlock).append(AJS.$('<a class="commentreply" href="#">Reply</a>'));
-
-    AJS.$(commentBlock).append(AJS.$('<div class="commentreplyarea">' +
-        '<div class="field-group aui-field-wikiedit comment-input">' +
-        '<div class="jira-wikifield" field-id="comment" renderer-type="atlassian-wiki-renderer" issue-key="' + issueKey + '" resolved="">' +
-        '<div class="wiki-edit">' +
-        '<div id="comment-wiki-edit" class="wiki-edit-content">' +
-        '<textarea class="textarea long-field wiki-textfield mentionable wiki-editor-initialised wiki-edit-wrapped" cols="60" id="comment" name="comment" wrap="virtual" data-projectkey="' + projectKey + '" data-issuekey="' + issueKey + '" resolved="" style="overflow-y: auto; min-height: 174px; max-height: 629px;box-sizing:border-box;" />' +
-        '<div class="rte-container">' +
-        '<rich-editor contenteditable="true"  data-issue-key="' + issueKey + '" data-content-present="true" resolved=""/>' +
-        '</div>' +
-        '</div>' +
-        '</div> ' +
-        '<div class="field-tools"> ' +
-        '<button class="jira-icon-button fullscreen wiki-preview" id="comment-preview_link" type="button">' +
-        '</button> ' +
-        '</div>' +
-        '</div> ' +
-        '<div class="save-options wiki-button-bar">' +
-        '</div>' +
-        '<div class="buttons-container form-footer">' +
-        '<div class="buttons">' +
-        '<span class="icon throbber"/>' +
-        '<ul class="ops">' +
-        '<li>' +
-        '<a href="#" data="' + commentId + '" class="aui-button replycommentbutton">Add</a>' +
-        '<span class="icon throbber loading hiddenthrobber"/>' +
-        '</li>' +
-        '<li>' +
-        '<a href="#" data="' + commentId + '" class="aui-button aui-button-link cancel replycommentcancel">Cancel</a>' +
-        '</li>' +
-        '</ul>' +
-        '</div>' +
-        '</div>' +
-        '</div></div><br/>'));
+    debug("addCommentButtonsToBlock called");    
+    AJS.$.ajax({
+        async: false,
+        cache: false,
+        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
+        success: function (data) {
+            if (AJS.$(commentBlock).find('.commentreply').length !== 0) {
+              return;
+            }
+            var block = document.createElement("div");
+            block.innerHTML = data;
+            commentBlock.append(block);
+            debug('Reply block added.');
+        }
+    });
 };
 
 var addVoteLinks = function (commentId) {
     debug("addVoteLinks called");
-    AJS.$(this).append(AJS.$('<a class="upvote" commentid=' + commentId + ' title="Up votes this comment">' +
-        '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>' +
-        '<a class="downvote" commentid=' + commentId + ' title="Down votes this comment">' +
-        '<img class="emoticon" src="' + AJS.contextPath() + '/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0"></a>'));
+    var actionBlock=AJS.$(this);
+    AJS.$.ajax({
+        async: false,
+        cache: false,
+        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/votes?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
+        success: function (data) {            
+            //var block = document.createElement("div");
+            //block.innerHTML = data;
+            //actionBlock.append(block);
+            actionBlock[0].insertAdjacentHTML("beforeend",data);
+            debug('Up votLinks added');
+        }
+    });
 };
 
+var handleIssueUpdated = function (e, context, reason) {
+    if (!intialized) {
+        return;
+    }
 
-JIRA.bind(JIRA.Events.REFRESH_ISSUE_PAGE, function (e, context, reason) {
-    debug("Page refreshed");
-    addCommentButtons();
-    rearrangeComments();
-    showCurrentVotes();
+    if (issueKey !== undefined && JIRA.Issue.getIssueKey() === issueKey) {
+        debug("Issue was switched on board");
+        addCommentButtons();
+        rearrangeComments();
+        showCurrentVotes();
+    } else {
+        intialized = false;
+        doAll();
+    }
+};
+
+jQuery(document).ready(function() {
+    JIRA.bind(JIRA.Events.ISSUE_REFRESHED, handleIssueUpdated);
+    JIRA.bind(JIRA.Events.UNLOCK_PANEL_REFRESHING, handleIssueUpdated);
+    
+    if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {        
+        JIRA.bind('issueUpdated', handleIssueUpdated);
+        JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, handleIssueUpdated);
+    }
+
+    
 });
