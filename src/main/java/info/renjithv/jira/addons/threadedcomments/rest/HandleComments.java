@@ -1,16 +1,22 @@
 package info.renjithv.jira.addons.threadedcomments.rest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.permission.ProjectPermissions;
+import com.atlassian.jira.plugin.renderer.JiraRendererModuleDescriptor;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import info.renjithv.jira.addons.threadedcomments.rest.data.Constants;
+import info.renjithv.jira.addons.threadedcomments.rest.data.ThreadedCommentsConfiguration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -22,7 +28,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,14 +43,18 @@ public class HandleComments {
     private static final Logger log = LogManager.getLogger("handlecomments");
     private ActiveObjects ao;
     private IssueManager issueManager;
+    private IssueService issueService;
     private PermissionManager permissionManager;
     private CommentManager commentManager;
+    private ThreadedCommentsConfiguration threadedCommentsConfiguration;
 
-    public HandleComments(ActiveObjects ao, IssueManager issueManager, PermissionManager permissionManager, CommentManager commentManager) {
+    public HandleComments(ActiveObjects ao, IssueManager issueManager, IssueService issueService, PermissionManager permissionManager, CommentManager commentManager, ThreadedCommentsConfiguration threadedCommentsConfiguration) {
         this.ao = checkNotNull(ao);
         this.issueManager = issueManager;
+        this.issueService = issueService;
         this.permissionManager = permissionManager;
         this.commentManager = commentManager;
+        this.threadedCommentsConfiguration = threadedCommentsConfiguration;
     }
 
     @GET
@@ -75,6 +87,48 @@ public class HandleComments {
             log.warn("Get comment request ignored");
         }
         return Response.ok(commentData.values()).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("configuration")
+    public Response getComments(@QueryParam("issueId") final Long issueId) {
+        if (null == issueId) {
+            return badRequest("Issue Id missing");
+        }
+        final ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+
+        MutableIssue issue = this.issueService.getIssue(loggedInUser, issueId).getIssue();
+        if (issue == null) {
+            return badRequest("Permission denied");
+        }
+
+        Project project = issue.getProjectObject();
+        if (project == null) {
+            return badRequest("Project missing");
+        }
+        Boolean threadedCommentsEnabled = this.threadedCommentsConfiguration.getThreadedCommentsEnabledGlobaly()
+                || this.threadedCommentsConfiguration.getThreadedCommentsEnabledProjects().contains(String.valueOf(project.getId()));
+        Boolean voteCommentsEnabled = this.threadedCommentsConfiguration.getVoteCommentsEnabledGlobaly()
+                || this.threadedCommentsConfiguration.getVoteCommentsEnabledProjects().contains(String.valueOf(project.getId()));
+
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
+        JiraRendererModuleDescriptor rendererDescriptor = renderer.getDescriptor();
+        Map<String, Object> rendererParams = new HashMap<String, Object>();
+        rendererParams.put("rows", "5");
+        rendererParams.put("cols", "35");
+        rendererParams.put("wrap", "virtual");
+        rendererParams.put("mentionable", "true");
+        rendererParams.put("data-issuekey", issue.getKey());
+        rendererParams.put("data-projectkey", project.getKey());
+        String editorHtml = rendererDescriptor.getEditVM("", issue.getKey(), "atlassian-wiki-renderer", "comment", "responsible", rendererParams, false);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put(Constants.THREATEDCOMMENTS_ENABLED, threadedCommentsEnabled);
+        result.put(Constants.COMMENTVOTE_ENABLED, voteCommentsEnabled);
+        result.put(Constants.EDITOR_HTML, editorHtml);
+
+        return Response.ok(result).build();
     }
 
     @POST

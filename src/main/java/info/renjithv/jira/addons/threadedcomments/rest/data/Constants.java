@@ -8,4 +8,5 @@ public abstract class Constants {
     public static final String THREATEDCOMMENTS_PROJECTS = "threadedProjects";
     public static final String COMMENTVOTE_ENABLED = "voteEnabled";
     public static final String COMMENTVOTE_PROJECTS = "voteProjects";
+    public static final String EDITOR_HTML = "editorHtml";
 }

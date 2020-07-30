@@ -1,0 +1,46 @@
+{namespace JIRA.Templates.Plugins.ThreadedComments}
+
+/**
+ * Reply Comment Editor
+ * @param threadedEnabled threadedEnabled
+ * @param editorHtml editorHtml
+ * @param commentId commentId
+*/
+{template .replyCommentEditor autoescape="false"}
+    {if $threadedEnabled}
+        <div>
+            <a class="commentreply" href="#">Reply</a>
+            <div class="commentreplyarea">
+                <div class="field-group">
+                    {$editorHtml}
+
+                    <input accesskey="s" data="{$commentId}"
+                           class="aui-button aui-button-primary replycommentbutton" id="issue-comment-add-submit"
+                           name="Add" title="Press Alt+s to submit this form" type="submit" value="Add">
+                    <span class="icon throbber loading hiddenthrobber"></span>
+                    <a href="#" data="{$commentId}" class="aui-button cancel replycommentcancel">Cancel</a>
+                </div>
+            </div>
+            <br/>
+        </div>
+    {/if}
+{/template}
+
+/**
+ * Add Vote
+ * @param voteEnabled voteEnabledl
+ * @param commentId commentId
+ * @param contextPath contextPath
+*/
+{template .addVote autoescape="false"}
+    {if $voteEnabled}
+        <span>
+            <a class="upvote" commentid="{$commentId}" title="Up votes this comment">
+                <img class="emoticon" src="{$contextPath}/images/icons/emoticons/thumbs_up.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+            </a>
+            <a class="downvote" commentid="{$commentId}" title="Down votes this comment">
+                <img class="emoticon" src="{$contextPath}/images/icons/emoticons/thumbs_down.gif" height="16" width="16" align="absmiddle" alt="" border="0">
+            </a>
+        </span>
+    {/if}
+{/template}

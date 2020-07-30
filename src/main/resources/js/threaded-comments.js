@@ -120,7 +120,7 @@ var replyCommentAdd = function () {
         return;
     }
 
-    var commentTextArea = currButton.parent().parent().parent().parent().parent().parent().find(".textarea");
+    var commentTextArea = currButton.parent('.field-group').find(".textarea");
 
     var newComment = commentTextArea.val();
     debug("Reply invoked " + newComment);
@@ -306,69 +306,53 @@ function addCommentButtons() {
         return;
     }
 
-    AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(checkAndAddButtons);
-};
+    AJS.$.getJSON(AJS.contextPath() + "/rest/handlecomments/latest/hdata/configuration?issueId=" + JIRA.Issue.getIssueId(), function (data) {
+        AJS.$('div[id|=comment][id!=comment-wiki-edit]').each(function() {
+            var commentId = AJS.$(this).attr('id').split('-')[1];
+            var commentUser = AJS.$(this).find('.action-details a').attr("rel");
+            var commentBlock = AJS.$(this).children()[0];
 
-var checkAndAddButtons = function () {
-    debug("checkAndAddButtons called");
-    var commentId = AJS.$(this).attr('id').split('-')[1];
-    var commentUser = AJS.$(this).find('.action-details a').attr("rel");
-    var commentBlock = AJS.$(this).children()[0];
+            debug("Adding button for " + "," + commentId + "," + commentUser);
 
-    debug("Adding button for " + "," + commentId + "," + commentUser);
+            if (AJS.$(commentBlock).find('.commentreply').length == 0) {
+                debug("Adding reply block for commentId - " + commentId);
 
+                addCommentButtonsToBlock(commentId, commentBlock, data.threadedEnabled, data.editorHtml);
 
-    if (AJS.$(commentBlock).find('.commentreply').length == 0) {
-        debug("Adding reply block for commentId - " + commentId);
-
-        addCommentButtonsToBlock(commentId, commentBlock);
-
-        //Add the vote buttons (only if the comment is from someone else)
-        if (loggedInUser != commentUser) {
-            AJS.$(commentBlock).find('.action-links').each(function () {
-                addVoteLinks.call(this, commentId)
-            });
-        } else {
-            debug("Not adding like/dislike button for commentId = " + commentId);
-        }
-    } else {
-        debug("Reply buttons already exist");
-    }
-};
-
-var addCommentButtonsToBlock = function (commentId, commentBlock) {
-    debug("addCommentButtonsToBlock called");    
-    AJS.$.ajax({
-        async: false,
-        cache: false,
-        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/helper?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
-        success: function (data) {
-            if (AJS.$(commentBlock).find('.commentreply').length !== 0) {
-              return;
+                //Add the vote buttons (only if the comment is from someone else)
+                if (loggedInUser != commentUser) {
+                    AJS.$(commentBlock).find('.action-links').each(function () {
+                        addVoteLinks.call(this, commentId, data.voteEnabled)
+                    });
+                } else {
+                    debug("Not adding like/dislike button for commentId = " + commentId);
+                }
+            } else {
+                debug("Reply buttons already exist");
             }
-            var block = document.createElement("div");
-            block.innerHTML = data;
-            commentBlock.append(block);
-            debug('Reply block added.');
-        }
+        });
     });
+}
+
+var addCommentButtonsToBlock = function (commentId, commentBlock, threadedEnabled, editorHtml) {
+    debug("addCommentButtonsToBlock called");
+    if (AJS.$(commentBlock).find('.commentreply').length !== 0) {
+        return;
+    }
+    AJS.$(commentBlock).append(JIRA.Templates.Plugins.ThreadedComments.replyCommentEditor({
+        threadedEnabled: threadedEnabled,
+        editorHtml: editorHtml,
+        commentId: commentId
+    }));
 };
 
-var addVoteLinks = function (commentId) {
+var addVoteLinks = function (commentId, voteEnabled) {
     debug("addVoteLinks called");
-    var actionBlock=AJS.$(this);
-    AJS.$.ajax({
-        async: false,
-        cache: false,
-        url: AJS.contextPath() + "/plugins/servlet/threaded-comments/votes?commentId=" + commentId + '&issueKey=' + issueKey + '&projectKey=' + projectKey,
-        success: function (data) {            
-            //var block = document.createElement("div");
-            //block.innerHTML = data;
-            //actionBlock.append(block);
-            actionBlock[0].insertAdjacentHTML("beforeend",data);
-            debug('Up votLinks added');
-        }
-    });
+    AJS.$(this).append(JIRA.Templates.Plugins.ThreadedComments.addVote({
+        voteEnabled: voteEnabled,
+        commentId: commentId,
+        contextPath: AJS.contextPath()
+    }));
 };
 
 var handleIssueUpdated = function (e, context, reason) {
@@ -387,14 +371,12 @@ var handleIssueUpdated = function (e, context, reason) {
     }
 };
 
-jQuery(document).ready(function() {
+AJS.toInit(function (){
     JIRA.bind(JIRA.Events.ISSUE_REFRESHED, handleIssueUpdated);
     JIRA.bind(JIRA.Events.UNLOCK_PANEL_REFRESHING, handleIssueUpdated);
-    
+
     if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {        
         JIRA.bind('issueUpdated', handleIssueUpdated);
         JIRA.bind(GH.DetailsView.API_EVENT_DETAIL_VIEW_UPDATED, handleIssueUpdated);
     }
-
-    
 });
