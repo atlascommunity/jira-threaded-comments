@@ -372,8 +372,11 @@ var handleIssueUpdated = function (e, context, reason) {
 };
 
 AJS.toInit(function (){
-    JIRA.bind(JIRA.Events.ISSUE_REFRESHED, handleIssueUpdated);
-    JIRA.bind(JIRA.Events.UNLOCK_PANEL_REFRESHING, handleIssueUpdated);
+    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function(e, context, reason) {
+        if (reason === JIRA.CONTENT_ADDED_REASON.panelRefreshed && context.is('#activitymodule')) {
+            handleIssueUpdated(e, context, reason);
+        }
+    });
 
     if (typeof(GH) != "undefined" && typeof(GH.DetailsView) != "undefined") {        
         JIRA.bind('issueUpdated', handleIssueUpdated);
