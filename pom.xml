@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>1.27.6-SNAPSHOT</version>
+    <version>1.28.8</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
@@ -281,7 +281,7 @@
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jira.version>8.11.0</jira.version>
+        <jira.version>8.13.1</jira.version>
         <amps.version>8.0.0</amps.version>
         <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
         <ao.version>0.19.7</ao.version>

@@ -15,10 +15,20 @@
     <resource type="i18n" name="i18n" location="threaded-comments"/>
 
     <!-- add our web resources -->
+    <web-resource key="threaded-comments-soy-templates">
+        <dependency>com.atlassian.soy.soy-template-plugin:soy-deps</dependency>
+        <transformation extension="soy">
+            <transformer key="soyTransformer"/>
+        </transformation>
+        <resource type="download" name="templates.soy.js" location="/templates.soy"/>
+    </web-resource>
+
     <web-resource key="threaded-comments-resources" name="threaded-comments Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-flag</dependency>
+        <dependency>com.atlassian.jira.plugins.jira-editor-plugin:init</dependency>
         <dependency>jira.webresources:viewissue</dependency>
+        <dependency>info.renjithv.jira.addons.threadedcomments.threaded-comments:threaded-comments-soy-templates</dependency>
         <resource type="download" name="threaded-comments.css" location="/css/threaded-comments.css"/>
         <resource type="download" name="threaded-comments.js" location="/js/threaded-comments.js"/>
         <resource type="download" name="images/" location="/images"/>
@@ -42,14 +52,6 @@
         <entity>info.renjithv.jira.addons.threadedcomments.rest.VoteInfo</entity>
         <entity>info.renjithv.jira.addons.threadedcomments.rest.CommentInfo</entity>
     </ao>
-
-    <servlet key="helper-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.comments.ThreadedCommentsServlet">
-        <url-pattern>/threaded-comments/helper</url-pattern>
-    </servlet>
-	
-	<servlet key="votes-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.commentvotes.CommentvotesServlet">
-        <url-pattern>/threaded-comments/votes</url-pattern>
-    </servlet>
 
     <!-- add our web resources -->
     <web-resource key="threaded-comments-admin-resources" name="threaded-comments-admin-ui-plugin Web Resources">
