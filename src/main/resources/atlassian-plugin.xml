@@ -5,8 +5,6 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-        <param name="plugin-icon">images/pluginIcon.png</param>
-        <param name="plugin-logo">images/pluginLogo.png</param>
         <param name="atlassian-data-center-compatible">true</param>
         <param name="configure.url">/plugins/servlet/threaded-comments/admin</param>
     </plugin-info>
@@ -15,7 +13,7 @@
     <resource type="i18n" name="i18n" location="threaded-comments"/>
 
     <!-- add our web resources -->
-    <web-resource key="threaded-comments-soy-templates">
+    <web-resource key="threaded-comments-soy-templates" name="Soy Templates">
         <dependency>com.atlassian.soy.soy-template-plugin:soy-deps</dependency>
         <transformation extension="soy">
             <transformer key="soyTransformer"/>
@@ -23,7 +21,7 @@
         <resource type="download" name="templates.soy.js" location="/templates.soy"/>
     </web-resource>
 
-    <web-resource key="threaded-comments-resources" name="threaded-comments Web Resources">
+    <web-resource key="threaded-comments-resources" name="Threaded Comments Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:aui-flag</dependency>
         <dependency>com.atlassian.jira.plugins.jira-editor-plugin:init</dependency>
@@ -36,25 +34,19 @@
         <context>jira.general</context>
     </web-resource>
 
-    <!-- import from the product container -->
-    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
-    <component-import key="ao" name="Active Objects service"
-                      interface="com.atlassian.activeobjects.external.ActiveObjects">
-        <description>Component to access Active Objects functionality from the plugin</description>
-    </component-import>
-
-    <rest name="Handle Comments" i18n-name-key="handle-comments.name" key="handle-comments" path="/handlecomments"
+    <rest name="Threaded Comments REST Service" key="handle-comments" path="/handlecomments"
           version="1.0">
         <description key="handle-comments.description">The Handle Comments Plugin</description>
     </rest>
-    <ao key="ao-module">
+
+    <ao key="ao-module" name="Active Object Entities">
         <description>The module configuring the Active Objects service used by this plugin</description>
         <entity>info.renjithv.jira.addons.threadedcomments.rest.VoteInfo</entity>
         <entity>info.renjithv.jira.addons.threadedcomments.rest.CommentInfo</entity>
     </ao>
 
     <!-- add our web resources -->
-    <web-resource key="threaded-comments-admin-resources" name="threaded-comments-admin-ui-plugin Web Resources">
+    <web-resource key="threaded-comments-admin-resources" name="Configuration Page Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
 
         <resource type="download" name="threaded-comments-admin.css" location="/css/threaded-comments-admin.css"/>
@@ -64,12 +56,12 @@
         <context>threaded-comments-admin-ui-plugin</context>
     </web-resource>
 
-    <servlet key="admin-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.admin.AdminServlet">
+    <servlet key="admin-servlet" class="info.renjithv.jira.addons.threadedcomments.rest.admin.AdminServlet" name="Configuration Page Servlet">
         <url-pattern>/threaded-comments/admin</url-pattern>
     </servlet>
 
 
-    <web-item key="jira-menu-item" name="threaded-comments Admin" section="system.admin/globalsettings" weight="10"
+    <web-item key="jira-menu-item" name="Configuration Page Link" section="system.admin/globalsettings" weight="10"
               application="jira">
         <description>Link to threaded-comments-admin page.</description>
         <label key="threaded-comments.admin.label"/>
