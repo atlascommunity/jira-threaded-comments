@@ -3,16 +3,27 @@
     <parent>
         <groupId>ru.mail.jira.plugins</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
     <version>1.28.8</version>
-    <name>Mail.ru Plugin: JIRA Threaded Comments</name>
+    <organization>
+        <name>AtlaZon</name>
+        <url>http://www.atlazon.com</url>
+    </organization>
+    <name>JIRA Threaded Comments</name>
     <description>This enables comment threading in JIRA issues.</description>
     <packaging>atlassian-plugin</packaging>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com:atlascommunity/jira-threaded-comments.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:atlascommunity/jira-threaded-comments.git</developerConnection>
+        <url>https://github.com/atlascommunity/jira-threaded-comments</url>
+        <tag>threaded-comments-1.28.8</tag>
+    </scm>
 
     <repositories>
         <repository>
