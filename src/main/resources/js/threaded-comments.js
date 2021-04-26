@@ -113,74 +113,62 @@ var replyClick = function (event) {
 
 var formSubmit = function (formButton) {
     if (formButton) {
-        var commentTextArea = formButton.parent(".field-group").find(".textarea");
-        var postData = formingReplyCommentData(formButton);
-        if (postData) {
-            addCommentRequest(postData, formButton, commentTextArea);
+        if (formButton.attr("disabled")) {
+            debug("Click on a disable element. Returning.");
+            return;
         }
+
+        var commentTextArea = formButton.parent(".field-group").find(".textarea");
+
+        var newComment = commentTextArea.val();
+        debug("Reply invoked " + newComment);
+        if (newComment && newComment.length === 0) {
+            debug("empty input");
+            return;
+        }
+
+        formButton.attr("disabled", true);
+        formButton.parent().find(".hiddenthrobber").removeClass("hiddenthrobber");
+        formButton.parent().parent().find(".replycommentcancel").hide();
+        commentTextArea.attr("disabled", true);
+
+        var postData = {};
+        postData.commentbody = newComment;
+        postData.parentcommentid = formButton.attr("data");
+        postData.issueid = issueID;
+
+        debug("new data " + postData);
+        AJS.$.ajax({
+            url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/addcomment",
+            data: JSON.stringify(postData),
+            type: "POST",
+            contentType: "application/json",
+            success: function (data) {
+                console.log("New comment added :" + data);
+                JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
+
+                // close controls on rapidboards
+                formButton.parent().parent().parent().parent().parent().parent().toggle();
+                formButton.closest(".issue-data-block").find(".commentreply").show();
+            },
+            error: function (xhr) {
+                AJS.flag({
+                    type: "error",
+                    body: "Comment creation failed (Status " + xhr.status + ")",
+                });
+            },
+            complete: function (data) {
+                formButton.parent().find(".throbber").addClass("hiddenthrobber");
+                formButton.removeAttr("disabled");
+                formButton.parent().parent().find(".replycommentcancel").show();
+                commentTextArea.removeAttr("disabled");
+
+                if (GH !== undefined && GH.DetailsView !== undefined) {
+                    GH.DetailsView.load(null);
+                }
+            },
+        });
     }
-};
-
-var addCommentRequest = function (postData, currButton, commentTextArea) {
-  debug("new data " + postData);
-  AJS.$.ajax({
-    url: AJS.contextPath() + "/rest/handlecomments/latest/hdata/addcomment",
-    data: JSON.stringify(postData),
-    type: "POST",
-    contentType: "application/json",
-    success: function (data) {
-      console.log("New comment added :" + data);
-      JIRA.trigger(JIRA.Events.REFRESH_ISSUE_PAGE, [JIRA.Issue.getIssueId()]);
-
-      // close controls on rapidboards
-      currButton.parent().parent().parent().parent().parent().parent().toggle();
-      currButton.closest(".issue-data-block").find(".commentreply").show();
-    },
-    error: function (xhr) {
-      AJS.flag({
-        type: "error",
-        body: "Comment creation failed (Status " + xhr.status + ")",
-      });
-    },
-    complete: function (data) {
-      currButton.parent().find(".throbber").addClass("hiddenthrobber");
-      currButton.removeAttr("disabled");
-      currButton.parent().parent().find(".replycommentcancel").show();
-      commentTextArea.removeAttr("disabled");
-
-      if (GH !== undefined && GH.DetailsView !== undefined) {
-        GH.DetailsView.load(null);
-      }
-    },
-  });
-};
-
-var formingReplyCommentData = function (currButton) {
-  if (currButton.attr("disabled")) {
-    debug("Click on a disable element. Returning.");
-    return;
-  }
-
-  var commentTextArea = currButton.parent(".field-group").find(".textarea");
-
-  var newComment = commentTextArea.val();
-  debug("Reply invoked " + newComment);
-  if (newComment.length == 0) {
-    debug("empty input");
-    return;
-  }
-
-  currButton.attr("disabled", true);
-  currButton.parent().find(".hiddenthrobber").removeClass("hiddenthrobber");
-  currButton.parent().parent().find(".replycommentcancel").hide();
-  commentTextArea.attr("disabled", true);
-
-  var encoded = AJS.$("<div/>").text(newComment).html();
-  var postData = {};
-  postData.commentbody = newComment;
-  postData.parentcommentid = currButton.attr("data");
-  postData.issueid = issueID;
-  return postData;
 };
 
 var cancelHandle = function (event) {
