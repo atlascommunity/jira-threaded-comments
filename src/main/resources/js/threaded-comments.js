@@ -78,7 +78,7 @@ AJS.$('document').ready(function () {
     debug("doc ready");
     //Needed only once
     AJS.$(document).on("click", '.commentreply', replyClick);
-    AJS.$(document).on("click", '.replycommentbutton', replyCommentAdd);
+    AJS.$(document).on("click", '.replycommentbutton', function() { formSubmit(AJS.$(this)) });
     AJS.$(document).on("click", '.replycommentcancel', cancelHandle);
     AJS.$(document).on("click", '.upvote', upVote);
     AJS.$(document).on("click", '.downvote', downVote);
@@ -111,24 +111,12 @@ var replyClick = function (event) {
     AJS.$(this).hide();
 };
 
-var replyCommentAdd = function () {
-  var currButton = AJS.$(this);
-  var commentTextArea = currButton.parent(".field-group").find(".textarea");
-  var postData = formingReplyCommentData(currButton);
-  if (postData) {
-    addCommentRequest(postData, currButton, commentTextArea);
-  }
-};
-
-var formSubmit = function (event) {
-    var formButton = AJS.$(event.target).find(".replycommentbutton").get(0);
+var formSubmit = function (formButton) {
     if (formButton) {
-        var commentTextArea = AJS.$(formButton)
-            .parent(".field-group")
-            .find(".textarea");
-        var postData = formingReplyCommentData(AJS.$(formButton));
+        var commentTextArea = formButton.parent(".field-group").find(".textarea");
+        var postData = formingReplyCommentData(formButton);
         if (postData) {
-            addCommentRequest(postData, AJS.$(formButton), commentTextArea);
+            addCommentRequest(postData, formButton, commentTextArea);
         }
     }
 };
@@ -369,7 +357,7 @@ var addCommentButtonsToBlock = function (commentId, commentBlock, threadedEnable
     AJS.$(commentBlock)
       .find(".commentreplyform")
       .on("submit", function (event) {
-        formSubmit(event);
+        formSubmit(AJS.$(this).find('.replycommentbutton'));
         event.preventDefault();
       });
 };
