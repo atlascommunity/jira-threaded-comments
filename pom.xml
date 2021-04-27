@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.renjithv.jira.addons.threadedcomments</groupId>
     <artifactId>threaded-comments</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <organization>
         <name>AtlaZon</name>
         <url>http://www.atlazon.com</url>
